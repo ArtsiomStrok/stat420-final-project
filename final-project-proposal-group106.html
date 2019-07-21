@@ -388,7 +388,7 @@ $(document).ready(function () {
 <li><a href="#description-of-the-dataset">Description of the dataset</a></li>
 <li><a href="#background-information">Background information</a></li>
 <li><a href="#statement-of-interest">Statement of interest</a></li>
-<li><a href="#evidence-of-data-loading">Evidence of data loading</a></li>
+<li><a href="#samples-of-the-data">Samples of the data</a></li>
 </ul></li>
 </ul>
 </div>
@@ -431,29 +431,36 @@ $(document).ready(function () {
 <p>Life expectancy has increased dramatically over the last few centuries. Since 1900 the global average life expectancy has more than doubled and there has been a huge development in health sector in the past 15 years resulting in improvement of human mortality rates especially in the developing nations in comparison to the past 30 years. Therefore, in this project, only data from year 2000-2015 is considered for exploration and analysis.</p>
 <p>This dataset is a compilation of data from the Global Health Observatory (GHO) and United Nations. GHO data repository under World Health Organization (WHO) keeps track of the health status as well as many other related factors for all the countries and United Nations website provides the corresponding economic data. This dataset is cleaned by removing all the missing values, maily for population, Hepatitis B and GDP from less known countries and shared on Kaggle website (<a href="https://www.kaggle.com/kumarajarshi/life-expectancy-who" class="uri">https://www.kaggle.com/kumarajarshi/life-expectancy-who</a>). The final dataset contains 2938 observations with 22 variables which are more critical and representative among all the categories of health-related factors from year 2000 - 2015 for 193 countries.</p>
 <p>The description of each variable for this dataset is listed below:</p>
+<p><strong>Numerical Response</strong></p>
 <ul>
-<li><strong>Country</strong>: Country</li>
-<li><strong>Year</strong>: Year</li>
-<li><strong>Status</strong>: Developed or Developing status</li>
-<li><strong>Life expectancy</strong>: Life Expectancy in age</li>
-<li><strong>Adult Mortality</strong>: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)</li>
-<li><strong>infant</strong>: deathsNumber of Infant Deaths per 1000 population</li>
-<li><strong>Alcohol</strong>: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)</li>
-<li><strong>percentage expenditure</strong>: Expenditure on health as a percentage of Gross Domestic Product per capita(%)</li>
-<li><strong>Hepatitis B</strong>: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)</li>
-<li><strong>Measles</strong>: Measles - number of reported cases per 1000 population</li>
-<li><strong>BMI</strong>: Average Body Mass Index of entire population</li>
-<li><strong>under-five deaths</strong>: Number of under-five deaths per 1000 population</li>
-<li><strong>Polio</strong>: Polio (Pol3) immunization coverage among 1-year-olds (%)</li>
-<li><strong>Total expenditure</strong>: General government expenditure on health as a percentage of total government expenditure (%)</li>
-<li><strong>Diphtheria</strong>: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)</li>
-<li><strong>HIV/AIDS</strong>: Deaths per 1 000 live births HIV/AIDS (0-4 years)</li>
-<li><strong>GDP</strong>: Gross Domestic Product per capita (in USD)</li>
-<li><strong>Population</strong>: Population of the country</li>
-<li><strong>thinness 1-19 years</strong>: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )</li>
-<li><strong>thinness 5-9 years</strong>: Prevalence of thinness among children for Age 5 to 9(%)</li>
-<li><strong>Income composition of resources</strong>: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)</li>
-<li><strong>Schooling</strong>: Number of years of Schooling(years)</li>
+<li><code>Life expectancy</code>: Life Expectancy in age</li>
+</ul>
+<p><strong>Numerical Predictors</strong></p>
+<ul>
+<li><code>Year</code>: Year</li>
+<li><code>Adult Mortality</code>: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)</li>
+<li><code>infant</code>: deathsNumber of Infant Deaths per 1000 population</li>
+<li><code>Alcohol</code>: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)</li>
+<li><code>percentage expenditure</code>: Expenditure on health as a percentage of Gross Domestic Product per capita(%)</li>
+<li><code>Hepatitis B</code>: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)</li>
+<li><code>Measles</code>: Measles - number of reported cases per 1000 population</li>
+<li><code>BMI</code>: Average Body Mass Index of entire population</li>
+<li><code>under-five deaths</code>: Number of under-five deaths per 1000 population</li>
+<li><code>Polio</code>: Polio (Pol3) immunization coverage among 1-year-olds (%)</li>
+<li><code>Total expenditure</code>: General government expenditure on health as a percentage of total government expenditure (%)</li>
+<li><code>Diphtheria</code>: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)</li>
+<li><code>HIV/AIDS</code>: Deaths per 1 000 live births HIV/AIDS (0-4 years)</li>
+<li><code>GDP</code>: Gross Domestic Product per capita (in USD)</li>
+<li><code>Population</code>: Population of the country</li>
+<li><code>thinness 1-19 years</code>: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )</li>
+<li><code>thinness 5-9 years</code>: Prevalence of thinness among children for Age 5 to 9(%)</li>
+<li><code>Income composition of resources</code>: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)</li>
+<li><code>Schooling</code>: Number of years of Schooling(years)</li>
+</ul>
+<p><strong>Categotical Predictors</strong></p>
+<ul>
+<li><code>Country</code>: Country</li>
+<li><code>Status</code>: Developed or Developing status</li>
 </ul>
 </div>
 <div id="background-information" class="section level3">
@@ -472,8 +479,8 @@ $(document).ready(function () {
 <li>Based on life expectancy data to classify the status of a country (developing or developed)</li>
 </ul>
 </div>
-<div id="evidence-of-data-loading" class="section level3">
-<h3>Evidence of data loading</h3>
+<div id="samples-of-the-data" class="section level3">
+<h3>Samples of the data</h3>
 <pre class="r"><code>library(knitr)
 data = read.csv(&quot;Life Expectancy Data.csv&quot;)
 kable(t(data[sample(nrow(data), 5), ]))</code></pre>
@@ -481,189 +488,189 @@ kable(t(data[sample(nrow(data), 5), ]))</code></pre>
 <thead>
 <tr class="header">
 <th></th>
-<th align="left">319</th>
-<th align="left">1211</th>
-<th align="left">2825</th>
-<th align="left">1006</th>
-<th align="left">1088</th>
+<th align="left">198</th>
+<th align="left">2735</th>
+<th align="left">233</th>
+<th align="left">2580</th>
+<th align="left">1872</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>Country</td>
-<td align="left">Bolivia (Plurinational State of)</td>
-<td align="left">Indonesia</td>
-<td align="left">Uruguay</td>
-<td align="left">Germany</td>
-<td align="left">Guinea</td>
+<td align="left">Bangladesh</td>
+<td align="left">Ukraine</td>
+<td align="left">Belarus</td>
+<td align="left">Thailand</td>
+<td align="left">Nicaragua</td>
 </tr>
 <tr class="even">
 <td>Year</td>
-<td align="left">2001</td>
+<td align="left">2010</td>
+<td align="left">2011</td>
 <td align="left">2007</td>
-<td align="left">2001</td>
-<td align="left">2004</td>
-<td align="left">2002</td>
+<td align="left">2005</td>
+<td align="left">2005</td>
 </tr>
 <tr class="odd">
 <td>Status</td>
 <td align="left">Developing</td>
 <td align="left">Developing</td>
 <td align="left">Developing</td>
-<td align="left">Developed</td>
+<td align="left">Developing</td>
 <td align="left">Developing</td>
 </tr>
 <tr class="even">
 <td>Life.expectancy</td>
-<td align="left">63.3</td>
-<td align="left">67.5</td>
-<td align="left">75.2</td>
-<td align="left">79.1</td>
-<td align="left">52.9</td>
+<td align="left">69.9</td>
+<td align="left">75.0</td>
+<td align="left">69.8</td>
+<td align="left">72.5</td>
+<td align="left">71.2</td>
 </tr>
 <tr class="odd">
 <td>Adult.Mortality</td>
-<td align="left">238</td>
-<td align="left">19</td>
-<td align="left">123</td>
-<td align="left">86</td>
-<td align="left">337</td>
+<td align="left">142</td>
+<td align="left">24</td>
+<td align="left">226</td>
+<td align="left">177</td>
+<td align="left">194</td>
 </tr>
 <tr class="even">
 <td>infant.deaths</td>
-<td align="left">14</td>
-<td align="left">154</td>
+<td align="left">126</td>
+<td align="left">5</td>
 <td align="left">1</td>
+<td align="left">13</td>
 <td align="left">3</td>
-<td align="left">35</td>
 </tr>
 <tr class="odd">
 <td>Alcohol</td>
-<td align="left">2.20</td>
-<td align="left">0.06</td>
-<td align="left">6.48</td>
-<td align="left">11.83</td>
-<td align="left">0.21</td>
+<td align="left">0.01</td>
+<td align="left">8.48</td>
+<td align="left">14.22</td>
+<td align="left">6.26</td>
+<td align="left">3.70</td>
 </tr>
 <tr class="even">
 <td>percentage.expenditure</td>
-<td align="left">0.00</td>
-<td align="left">102.63</td>
-<td align="left">421.48</td>
-<td align="left">5842.37</td>
-<td align="left">21.34</td>
+<td align="left">62.66</td>
+<td align="left">415.16</td>
+<td align="left">464.08</td>
+<td align="left">321.20</td>
+<td align="left">218.57</td>
 </tr>
 <tr class="odd">
 <td>Hepatitis.B</td>
-<td align="left">77</td>
-<td align="left">76</td>
 <td align="left">94</td>
-<td align="left">88</td>
-<td align="left">NA</td>
+<td align="left">21</td>
+<td align="left">91</td>
+<td align="left">96</td>
+<td align="left">86</td>
 </tr>
 <tr class="even">
 <td>Measles</td>
+<td align="left">788</td>
+<td align="left">1333</td>
+<td align="left">1</td>
+<td align="left">3526</td>
 <td align="left">0</td>
-<td align="left">19456</td>
-<td align="left">0</td>
-<td align="left">121</td>
-<td align="left">2151</td>
 </tr>
 <tr class="odd">
 <td>BMI</td>
-<td align="left">43.3</td>
-<td align="left">2.5</td>
-<td align="left">55.7</td>
-<td align="left">57.1</td>
-<td align="left">17.3</td>
+<td align="left">15.2</td>
+<td align="left">59.0</td>
+<td align="left">57.7</td>
+<td align="left">22.6</td>
+<td align="left">46.4</td>
 </tr>
 <tr class="even">
 <td>under.five.deaths</td>
-<td align="left">19</td>
-<td align="left">188</td>
+<td align="left">161</td>
+<td align="left">5</td>
 <td align="left">1</td>
-<td align="left">3</td>
-<td align="left">56</td>
+<td align="left">15</td>
+<td align="left">4</td>
 </tr>
 <tr class="odd">
 <td>Polio</td>
-<td align="left">71</td>
-<td align="left">77</td>
 <td align="left">94</td>
-<td align="left">96</td>
-<td align="left">56</td>
+<td align="left">54</td>
+<td align="left">9</td>
+<td align="left">98</td>
+<td align="left">87</td>
 </tr>
 <tr class="even">
 <td>Total.expenditure</td>
-<td align="left">6.31</td>
-<td align="left">3.10</td>
-<td align="left">7.46</td>
-<td align="left">1.37</td>
-<td align="left">3.76</td>
+<td align="left">3.60</td>
+<td align="left">6.98</td>
+<td align="left">6.44</td>
+<td align="left">3.55</td>
+<td align="left">6.11</td>
 </tr>
 <tr class="odd">
 <td>Diphtheria</td>
-<td align="left">71</td>
-<td align="left">73</td>
 <td align="left">94</td>
-<td align="left">96</td>
-<td align="left">53</td>
+<td align="left">5</td>
+<td align="left">95</td>
+<td align="left">98</td>
+<td align="left">86</td>
 </tr>
 <tr class="even">
 <td>HIV.AIDS</td>
 <td align="left">0.1</td>
 <td align="left">0.2</td>
 <td align="left">0.1</td>
-<td align="left">0.1</td>
-<td align="left">3.0</td>
+<td align="left">0.5</td>
+<td align="left">0.3</td>
 </tr>
 <tr class="odd">
 <td>GDP</td>
-<td align="left">NA</td>
-<td align="left">1855.9</td>
-<td align="left">6281.4</td>
-<td align="left">34165.9</td>
-<td align="left">322.8</td>
+<td align="left">757.7</td>
+<td align="left">3569.8</td>
+<td align="left">4735.5</td>
+<td align="left">2893.7</td>
+<td align="left">1175.1</td>
 </tr>
 <tr class="even">
 <td>Population</td>
-<td align="left">NA</td>
-<td align="left">232989141</td>
-<td align="left">332713</td>
-<td align="left">8251626</td>
-<td align="left">9137345</td>
+<td align="left">15214912</td>
+<td align="left">45761</td>
+<td align="left">956953</td>
+<td align="left">6542547</td>
+<td align="left">5379328</td>
 </tr>
 <tr class="odd">
 <td>thinness..1.19.years</td>
-<td align="left">1.5</td>
-<td align="left">1.8</td>
-<td align="left">1.8</td>
-<td align="left">1.1</td>
-<td align="left">9.9</td>
+<td align="left">18.9</td>
+<td align="left">2.4</td>
+<td align="left">2.2</td>
+<td align="left">8.9</td>
+<td align="left">2.0</td>
 </tr>
 <tr class="even">
 <td>thinness.5.9.years</td>
-<td align="left">1.4</td>
-<td align="left">1.7</td>
-<td align="left">1.7</td>
-<td align="left">1.1</td>
-<td align="left">9.9</td>
+<td align="left">19.4</td>
+<td align="left">2.5</td>
+<td align="left">2.3</td>
+<td align="left">9.1</td>
+<td align="left">1.9</td>
 </tr>
 <tr class="odd">
 <td>Income.composition.of.resources</td>
-<td align="left">0.607</td>
-<td align="left">0.638</td>
-<td align="left">0.742</td>
-<td align="left">0.877</td>
-<td align="left">0.329</td>
+<td align="left">0.535</td>
+<td align="left">0.734</td>
+<td align="left">0.739</td>
+<td align="left">0.682</td>
+<td align="left">0.592</td>
 </tr>
 <tr class="even">
 <td>Schooling</td>
-<td align="left">13.7</td>
+<td align="left">8.9</td>
+<td align="left">14.9</td>
+<td align="left">14.9</td>
+<td align="left">12.0</td>
 <td align="left">11.0</td>
-<td align="left">14.2</td>
-<td align="left">16.4</td>
-<td align="left">5.5</td>
 </tr>
 </tbody>
 </table>
