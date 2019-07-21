@@ -1,6 +1,6 @@
 ---
 title: "Data Analysis and Prediction for Life Expectancy"
-author: "Artsiom Strok, Lin Jiang, Mayank Chhablani"
+author: "Group 106: Artsiom Strok, Lin Jiang, Mayank Chhablani"
 date: 'July 15, 2019'
 output:
   html_document:
