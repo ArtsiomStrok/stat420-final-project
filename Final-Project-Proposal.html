@@ -476,154 +476,194 @@ $(document).ready(function () {
 <h3>Evidence of data loading</h3>
 <pre class="r"><code>library(knitr)
 data = read.csv(&quot;Life Expectancy Data.csv&quot;)
-kable(head(data, n = 5))</code></pre>
+kable(t(data[sample(nrow(data), 5), ]))</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="left">Country</th>
-<th align="right">Year</th>
-<th align="left">Status</th>
-<th align="right">Life.expectancy</th>
-<th align="right">Adult.Mortality</th>
-<th align="right">infant.deaths</th>
-<th align="right">Alcohol</th>
-<th align="right">percentage.expenditure</th>
-<th align="right">Hepatitis.B</th>
-<th align="right">Measles</th>
-<th align="right">BMI</th>
-<th align="right">under.five.deaths</th>
-<th align="right">Polio</th>
-<th align="right">Total.expenditure</th>
-<th align="right">Diphtheria</th>
-<th align="right">HIV.AIDS</th>
-<th align="right">GDP</th>
-<th align="right">Population</th>
-<th align="right">thinness..1.19.years</th>
-<th align="right">thinness.5.9.years</th>
-<th align="right">Income.composition.of.resources</th>
-<th align="right">Schooling</th>
+<th></th>
+<th align="left">942</th>
+<th align="left">466</th>
+<th align="left">2702</th>
+<th align="left">1286</th>
+<th align="left">1283</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Afghanistan</td>
-<td align="right">2015</td>
-<td align="left">Developing</td>
-<td align="right">65.0</td>
-<td align="right">263</td>
-<td align="right">62</td>
-<td align="right">0.01</td>
-<td align="right">71.280</td>
-<td align="right">65</td>
-<td align="right">1154</td>
-<td align="right">19.1</td>
-<td align="right">83</td>
-<td align="right">6</td>
-<td align="right">8.16</td>
-<td align="right">65</td>
-<td align="right">0.1</td>
-<td align="right">584.26</td>
-<td align="right">33736494</td>
-<td align="right">17.2</td>
-<td align="right">17.3</td>
-<td align="right">0.479</td>
-<td align="right">10.1</td>
+<td>Country</td>
+<td align="left">France</td>
+<td align="left">Cambodia</td>
+<td align="left">Turkmenistan</td>
+<td align="left">Italy</td>
+<td align="left">Italy</td>
 </tr>
 <tr class="even">
-<td align="left">Afghanistan</td>
-<td align="right">2014</td>
-<td align="left">Developing</td>
-<td align="right">59.9</td>
-<td align="right">271</td>
-<td align="right">64</td>
-<td align="right">0.01</td>
-<td align="right">73.524</td>
-<td align="right">62</td>
-<td align="right">492</td>
-<td align="right">18.6</td>
-<td align="right">86</td>
-<td align="right">58</td>
-<td align="right">8.18</td>
-<td align="right">62</td>
-<td align="right">0.1</td>
-<td align="right">612.70</td>
-<td align="right">327582</td>
-<td align="right">17.5</td>
-<td align="right">17.5</td>
-<td align="right">0.476</td>
-<td align="right">10.0</td>
+<td>Year</td>
+<td align="left">2004</td>
+<td align="left">2014</td>
+<td align="left">2011</td>
+<td align="left">2012</td>
+<td align="left">2015</td>
 </tr>
 <tr class="odd">
-<td align="left">Afghanistan</td>
-<td align="right">2013</td>
+<td>Status</td>
 <td align="left">Developing</td>
-<td align="right">59.9</td>
-<td align="right">268</td>
-<td align="right">66</td>
-<td align="right">0.01</td>
-<td align="right">73.219</td>
-<td align="right">64</td>
-<td align="right">430</td>
-<td align="right">18.1</td>
-<td align="right">89</td>
-<td align="right">62</td>
-<td align="right">8.13</td>
-<td align="right">64</td>
-<td align="right">0.1</td>
-<td align="right">631.75</td>
-<td align="right">31731688</td>
-<td align="right">17.7</td>
-<td align="right">17.7</td>
-<td align="right">0.470</td>
-<td align="right">9.9</td>
+<td align="left">Developing</td>
+<td align="left">Developing</td>
+<td align="left">Developed</td>
+<td align="left">Developed</td>
 </tr>
 <tr class="even">
-<td align="left">Afghanistan</td>
-<td align="right">2012</td>
-<td align="left">Developing</td>
-<td align="right">59.5</td>
-<td align="right">272</td>
-<td align="right">69</td>
-<td align="right">0.01</td>
-<td align="right">78.184</td>
-<td align="right">67</td>
-<td align="right">2787</td>
-<td align="right">17.6</td>
-<td align="right">93</td>
-<td align="right">67</td>
-<td align="right">8.52</td>
-<td align="right">67</td>
-<td align="right">0.1</td>
-<td align="right">669.96</td>
-<td align="right">3696958</td>
-<td align="right">17.9</td>
-<td align="right">18.0</td>
-<td align="right">0.463</td>
-<td align="right">9.8</td>
+<td>Life.expectancy</td>
+<td align="left">82.0</td>
+<td align="left">68.3</td>
+<td align="left">65.6</td>
+<td align="left">82.0</td>
+<td align="left">82.7</td>
 </tr>
 <tr class="odd">
-<td align="left">Afghanistan</td>
-<td align="right">2011</td>
-<td align="left">Developing</td>
-<td align="right">59.2</td>
-<td align="right">275</td>
-<td align="right">71</td>
-<td align="right">0.01</td>
-<td align="right">7.097</td>
-<td align="right">68</td>
-<td align="right">3013</td>
-<td align="right">17.2</td>
-<td align="right">97</td>
-<td align="right">68</td>
-<td align="right">7.87</td>
-<td align="right">68</td>
-<td align="right">0.1</td>
-<td align="right">63.54</td>
-<td align="right">2978599</td>
-<td align="right">18.2</td>
-<td align="right">18.2</td>
-<td align="right">0.454</td>
-<td align="right">9.5</td>
+<td>Adult.Mortality</td>
+<td align="left">94</td>
+<td align="left">179</td>
+<td align="left">217</td>
+<td align="left">6</td>
+<td align="left">56</td>
+</tr>
+<tr class="even">
+<td>infant.deaths</td>
+<td align="left">3</td>
+<td align="left">11</td>
+<td align="left">7</td>
+<td align="left">2</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td>Alcohol</td>
+<td align="left">13.18</td>
+<td align="left">0.01</td>
+<td align="left">2.55</td>
+<td align="left">7.49</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td>percentage.expenditure</td>
+<td align="left">5291.23</td>
+<td align="left">12.18</td>
+<td align="left">490.42</td>
+<td align="left">4793.90</td>
+<td align="left">0.00</td>
+</tr>
+<tr class="odd">
+<td>Hepatitis.B</td>
+<td align="left">35</td>
+<td align="left">88</td>
+<td align="left">97</td>
+<td align="left">96</td>
+<td align="left">93</td>
+</tr>
+<tr class="even">
+<td>Measles</td>
+<td align="left">4448</td>
+<td align="left">0</td>
+<td align="left">0</td>
+<td align="left">376</td>
+<td align="left">159</td>
+</tr>
+<tr class="odd">
+<td>BMI</td>
+<td align="left">57.0</td>
+<td align="left">18.9</td>
+<td align="left">45.0</td>
+<td align="left">62.1</td>
+<td align="left">63.6</td>
+</tr>
+<tr class="even">
+<td>under.five.deaths</td>
+<td align="left">4</td>
+<td align="left">12</td>
+<td align="left">8</td>
+<td align="left">2</td>
+<td align="left">2</td>
+</tr>
+<tr class="odd">
+<td>Polio</td>
+<td align="left">99</td>
+<td align="left">87</td>
+<td align="left">97</td>
+<td align="left">96</td>
+<td align="left">93</td>
+</tr>
+<tr class="even">
+<td>Total.expenditure</td>
+<td align="left">1.53</td>
+<td align="left">5.68</td>
+<td align="left">1.98</td>
+<td align="left">9.28</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td>Diphtheria</td>
+<td align="left">98</td>
+<td align="left">88</td>
+<td align="left">97</td>
+<td align="left">97</td>
+<td align="left">93</td>
+</tr>
+<tr class="even">
+<td>HIV.AIDS</td>
+<td align="left">0.1</td>
+<td align="left">0.2</td>
+<td align="left">0.1</td>
+<td align="left">0.1</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="odd">
+<td>GDP</td>
+<td align="left">33874.7</td>
+<td align="left">198.7</td>
+<td align="left">5650.0</td>
+<td align="left">34814.1</td>
+<td align="left">349.1</td>
+</tr>
+<tr class="even">
+<td>Population</td>
+<td align="left">6274897</td>
+<td align="left">152779</td>
+<td align="left">517461</td>
+<td align="left">59539717</td>
+<td align="left">673582</td>
+</tr>
+<tr class="odd">
+<td>thinness..1.19.years</td>
+<td align="left">0.6</td>
+<td align="left">1.9</td>
+<td align="left">3.2</td>
+<td align="left">0.5</td>
+<td align="left">0.6</td>
+</tr>
+<tr class="even">
+<td>thinness.5.9.years</td>
+<td align="left">0.6</td>
+<td align="left">11.0</td>
+<td align="left">3.3</td>
+<td align="left">0.6</td>
+<td align="left">0.6</td>
+</tr>
+<tr class="odd">
+<td>Income.composition.of.resources</td>
+<td align="left">0.857</td>
+<td align="left">0.553</td>
+<td align="left">0.665</td>
+<td align="left">0.877</td>
+<td align="left">0.881</td>
+</tr>
+<tr class="even">
+<td>Schooling</td>
+<td align="left">15.5</td>
+<td align="left">10.9</td>
+<td align="left">10.6</td>
+<td align="left">16.6</td>
+<td align="left">16.3</td>
 </tr>
 </tbody>
 </table>
