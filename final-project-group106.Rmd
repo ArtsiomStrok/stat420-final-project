@@ -1,0 +1,137 @@
+---
+title: "Data Analysis and Prediction for Life Expectancy"
+author: "Artsiom Strok, Lin Jiang, Mayank Chhablani"
+date: 'July 15, 2019'
+output:
+  html_document:
+    toc: yes
+  pdf_document: default
+  word_document:
+    toc: yes
+urlcolor: cyan
+---
+
+***
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+options(scipen = 1, digits = 4, width = 80)
+```
+
+## Introduction
+
+***
+
+### Team information
+
+Name               NetID     Email
+----------------   -------   --------------------
+Artsiom Strok      astrok2   astrok2@illinois.edu 
+Lin Jiang          linj3     linj3@illinois.edu
+Mayank Chhablani   mchhab2	 mchhab2@illinois.edu
+----------------   -------   --------------------
+
+
+### Description of the dataset
+
+Life expectancy has increased dramatically over the last few centuries. Since 1900 the global average life expectancy has more than doubled and there has been a huge development in health sector in the past 15 years resulting in improvement of human mortality rates especially in the developing nations in comparison to the past 30 years. Therefore, in this project, only data from year 2000-2015 is considered for exploration and analysis. 
+
+This dataset is a compilation of data from the Global Health Observatory (GHO) and United Nations. GHO data repository under World Health Organization (WHO) keeps track of the health status as well as many other related factors for all the countries and United Nations website provides the corresponding economic data. This dataset is cleaned by removing all the missing values, maily for population, Hepatitis B and GDP from less known countries and shared on Kaggle website (https://www.kaggle.com/kumarajarshi/life-expectancy-who). The final dataset contains 2938 observations with 22 variables which are more critical and representative among all the categories of health-related factors from year 2000 - 2015 for 193 countries.
+
+The description of each variable for this dataset is listed below:
+
+- **Country**: Country
+- **Year**: Year
+- **Status**: Developed or Developing status
+- **Life expectancy**: Life Expectancy in age
+- **Adult Mortality**: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)
+- **infant**: deathsNumber of Infant Deaths per 1000 population
+- **Alcohol**: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)
+- **percentage expenditure**: Expenditure on health as a percentage of Gross Domestic Product per capita(%)
+- **Hepatitis B**: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)
+- **Measles**: Measles - number of reported cases per 1000 population
+- **BMI**: Average Body Mass Index of entire population
+- **under-five deaths**: Number of under-five deaths per 1000 population
+- **Polio**: Polio (Pol3) immunization coverage among 1-year-olds (%)
+- **Total expenditure**: General government expenditure on health as a percentage of total government expenditure (%)
+- **Diphtheria**: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)
+- **HIV/AIDS**: Deaths per 1 000 live births HIV/AIDS (0-4 years)
+- **GDP**: Gross Domestic Product per capita (in USD)
+- **Population**: Population of the country
+- **thinness 1-19 years**: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )
+- **thinness 5-9 years**: Prevalence of thinness among children for Age 5 to 9(%)
+- **Income composition of resources**: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)
+- **Schooling**: Number of years of Schooling(years)
+
+
+### Background information
+
+The GHO data repository is WHO's gateway to health-related statistics which provides access to a variety of indicators on priority health topics including mortality and burden of diseases, environmental health, violence and injuries etc. (http://apps.who.int/gho/data/node.resources). 
+
+The economic data such as GDP is collected from the National Accounts Main Aggregates Database under United Nations which collects and disseminates economic statistics from countries worldwide (https://unstats.un.org/unsd/snaama/Index). 
+
+By combining the data from these two databases and exploring the interactions between the variables such as immunization, moratlity, education and economic factors, we expect to build a robust multiple linear regression model to predict the life expectancy more accurately.
+
+
+### Statement of interest
+
+- Identify the major factors that affect the life expectancy
+- Explore the interactions between different variables, such as lower life expectancy vs healthcare expenditure
+- Discover the corelation between different factors
+- Build model to predict life expectancy for a certain country
+- Based on life expectancy data to classify the status of a country (developing or developed)
+
+
+### Evidence of data loading
+```{r message=FALSE, warning=FALSE}
+library(knitr)
+data = read.csv("Life Expectancy Data.csv")
+kable(head(data, n = 5))
+```
+## Methods
+
+```{r, include=FALSE}
+#install.packages("DAAG")
+#install.packages("corrplot")
+library(DAAG)
+library(corrplot)
+set.seed(42)
+```
+
+```{r}
+summary(data)
+nrow(data)
+data = na.omit(data)
+nrow(data)
+
+data = data[-1] #exclude country from dataset
+
+corrplot(cor(data[-c(2)]), method = "circle")
+#plot(data$Country, data$Life.expectancy, xlab = "Country", ylab = "Life Expectancy")
+plot(data$Status,
+     data$Life.expectancy,
+     xlab = "Status",
+     ylab = "Life Expectancy")
+
+# train test split 70/30 hold out
+train_size = floor(0.7 * nrow(data))
+train_idx = sample(nrow(data), train_size)
+data.train = data[train_idx, ]
+data.test = data[-train_idx, ]
+
+
+model.additive = lm(Life.expectancy ~ ., data.train)
+cv.lm(data.train, model.additive, m = 5, plotit = FALSE)
+mean((data.test$Life.expectancy - predict(model.additive, data.test)) ^ 2)
+
+model.selected = step(lm(Life.expectancy ~ ., data.train), trace = FALSE)
+cv.lm(data.train, model.selected, m = 5, plotit = FALSE)
+mean((data.test$Life.expectancy - predict(model.selected, data.test)) ^ 2)
+
+```
+
+
+## Results
+
+## Discussion
+
+## Appendix
