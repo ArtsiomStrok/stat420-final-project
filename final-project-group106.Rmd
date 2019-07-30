@@ -36,30 +36,36 @@ Life expectancy has increased dramatically over the last few centuries. Since 19
 This dataset is a compilation of data from the Global Health Observatory (GHO) and United Nations. GHO data repository under World Health Organization (WHO) keeps track of the health status as well as many other related factors for all the countries and United Nations website provides the corresponding economic data. This dataset is cleaned by removing all the missing values, maily for population, Hepatitis B and GDP from less known countries and shared on Kaggle website (https://www.kaggle.com/kumarajarshi/life-expectancy-who). The final dataset contains 2938 observations with 22 variables which are more critical and representative among all the categories of health-related factors from year 2000 - 2015 for 193 countries.
 
 The description of each variable for this dataset is listed below:
+**Numerical Response**
 
-- **Country**: Country
-- **Year**: Year
-- **Status**: Developed or Developing status
-- **Life expectancy**: Life Expectancy in age
-- **Adult Mortality**: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)
-- **infant**: deathsNumber of Infant Deaths per 1000 population
-- **Alcohol**: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)
-- **percentage expenditure**: Expenditure on health as a percentage of Gross Domestic Product per capita(%)
-- **Hepatitis B**: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)
-- **Measles**: Measles - number of reported cases per 1000 population
-- **BMI**: Average Body Mass Index of entire population
-- **under-five deaths**: Number of under-five deaths per 1000 population
-- **Polio**: Polio (Pol3) immunization coverage among 1-year-olds (%)
-- **Total expenditure**: General government expenditure on health as a percentage of total government expenditure (%)
-- **Diphtheria**: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)
-- **HIV/AIDS**: Deaths per 1 000 live births HIV/AIDS (0-4 years)
-- **GDP**: Gross Domestic Product per capita (in USD)
-- **Population**: Population of the country
-- **thinness 1-19 years**: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )
-- **thinness 5-9 years**: Prevalence of thinness among children for Age 5 to 9(%)
-- **Income composition of resources**: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)
-- **Schooling**: Number of years of Schooling(years)
+- `Life expectancy`: Life Expectancy in age
 
+**Numerical Predictors**
+
+- `Year`: Year
+- `Adult Mortality`: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)
+- `infant`: deathsNumber of Infant Deaths per 1000 population
+- `Alcohol`: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)
+- `percentage expenditure`: Expenditure on health as a percentage of Gross Domestic Product per capita(%)
+- `Hepatitis B`: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)
+- `Measles`: Measles - number of reported cases per 1000 population
+- `BMI`: Average Body Mass Index of entire population
+- `under-five deaths`: Number of under-five deaths per 1000 population
+- `Polio`: Polio (Pol3) immunization coverage among 1-year-olds (%)
+- `Total expenditure`: General government expenditure on health as a percentage of total government expenditure (%)
+- `Diphtheria`: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)
+- `HIV/AIDS`: Deaths per 1 000 live births HIV/AIDS (0-4 years)
+- `GDP`: Gross Domestic Product per capita (in USD)
+- `Population`: Population of the country
+- `thinness 1-19 years`: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )
+- `thinness 5-9 years`: Prevalence of thinness among children for Age 5 to 9(%)
+- `Income composition of resources`: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)
+- `Schooling`: Number of years of Schooling(years)
+
+**Categotical Predictors**
+
+- `Country`: Country
+- `Status`: Developed or Developing status
 
 ### Background information
 
@@ -82,26 +88,56 @@ By combining the data from these two databases and exploring the interactions be
 ### Evidence of data loading
 ```{r message=FALSE, warning=FALSE}
 library(knitr)
-data = read.csv("Life Expectancy Data.csv")
-kable(t(data[sample(nrow(data), 5), ]))
+original_data = read.csv("Life Expectancy Data.csv")
+kable(t(original_data[sample(nrow(original_data), 5), ]))
 ```
 
 ## Methods
 
-```{r, include=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 #install.packages("DAAG")
 #install.packages("corrplot")
+#install.packages("ggplot2")
+#install.packages("tidyr")
 library(DAAG)
 library(corrplot)
+library(ggplot2)
+library(tidyr)
 set.seed(42)
 ```
 
-```{r}
-summary(data)
-nrow(data)
-data = na.omit(data)
-nrow(data)
+Missing values analysis: 
 
+```{r}
+kable(colSums(is.na(original_data)), col.names = "Number of missing values")
+```
+
+
+1289 samples have at least one missing value. Alcohol is missing in 194 samples all of them belongs to 2015 year and these countiries definately should have alcohol consuption more than 0. The data was collected in 2015 when data about alcohol consumption simply was not available.
+
+Life expextancy and adult mortality is missing for 10 samples in 2013, all of them belongs to islands.
+
+Hepatitis B is missing in 553 samples. Samples belongs to different countries and years.
+
+```{r}
+nrow(original_data)
+data = na.omit(original_data)
+nrow(original_data) - nrow(data)
+```
+
+```{r}
+ggplot(gather(data[-c(1, 3)]), aes(value)) + 
+    geom_histogram(bins = 10) + 
+    facet_wrap(~key, scales = 'free_x')
+```
+
+```{r}
+ggplot(data, aes(x = Status, y = Life.expectancy)) + geom_boxplot()
+#ggplot(data, aes(x = Adult.Mortality, y = Life.expectancy)) + geom_boxplot()
+```
+
+
+```{r}
 data = data[-1] #exclude country from dataset
 
 corrplot(cor(data[-c(2)]), method = "circle")
