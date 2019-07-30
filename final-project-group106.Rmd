@@ -17,84 +17,52 @@ options(scipen = 1, digits = 4, width = 80)
 
 ## Introduction
 
-***
-
-### Team information
-
-Name               NetID     Email
-----------------   -------   --------------------
-Artsiom Strok      astrok2   astrok2@illinois.edu 
-Lin Jiang          linj3     linj3@illinois.edu
-Mayank Chhablani   mchhab2	 mchhab2@illinois.edu
-----------------   -------   --------------------
-
-
-### Description of the dataset
 
 Life expectancy has increased dramatically over the last few centuries. Since 1900 the global average life expectancy has more than doubled and there has been a huge development in health sector in the past 15 years resulting in improvement of human mortality rates especially in the developing nations in comparison to the past 30 years. Therefore, in this project, only data from year 2000-2015 is considered for exploration and analysis. 
 
-This dataset is a compilation of data from the Global Health Observatory (GHO) and United Nations. GHO data repository under World Health Organization (WHO) keeps track of the health status as well as many other related factors for all the countries and United Nations website provides the corresponding economic data. This dataset is cleaned by removing all the missing values, maily for population, Hepatitis B and GDP from less known countries and shared on Kaggle website (https://www.kaggle.com/kumarajarshi/life-expectancy-who). The final dataset contains 2938 observations with 22 variables which are more critical and representative among all the categories of health-related factors from year 2000 - 2015 for 193 countries.
+This dataset is a compilation of data from the Global Health Observatory (GHO) and United Nations. The GHO data repository is WHO's gateway to health-related statistics which provides access to a variety of indicators on priority health topics including mortality and burden of diseases, environmental health, violence and injuries etc. (http://apps.who.int/gho/data/node.resources). The economic data such as GDP is collected from the National Accounts Main Aggregates Database under United Nations which collects and disseminates economic statistics from countries worldwide (https://unstats.un.org/unsd/snaama/Index). 
+
+This dataset is cleaned by removing some missing values, maily for population, Hepatitis B and GDP from less known countries and shared on Kaggle website (https://www.kaggle.com/kumarajarshi/life-expectancy-who). The final dataset contains 2938 observations with 22 variables which are more critical and representative among all the categories of health-related factors from year 2000 - 2015 for 193 countries.
 
 The description of each variable for this dataset is listed below:
-**Numerical Response**
 
-- `Life expectancy`: Life Expectancy in age
+- **Country**: Country
+- **Year**: Year
+- **Status**: Developed or Developing status
+- **Life expectancy**: Life Expectancy in age
+- **Adult Mortality**: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)
+- **infant**: deathsNumber of Infant Deaths per 1000 population
+- **Alcohol**: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)
+- **percentage expenditure**: Expenditure on health as a percentage of Gross Domestic Product per capita(%)
+- **Hepatitis B**: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)
+- **Measles**: Measles - number of reported cases per 1000 population
+- **BMI**: Average Body Mass Index of entire population
+- **under-five deaths**: Number of under-five deaths per 1000 population
+- **Polio**: Polio (Pol3) immunization coverage among 1-year-olds (%)
+- **Total expenditure**: General government expenditure on health as a percentage of total government expenditure (%)
+- **Diphtheria**: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)
+- **HIV/AIDS**: Deaths per 1 000 live births HIV/AIDS (0-4 years)
+- **GDP**: Gross Domestic Product per capita (in USD)
+- **Population**: Population of the country
+- **thinness 1-19 years**: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )
+- **thinness 5-9 years**: Prevalence of thinness among children for Age 5 to 9(%)
+- **Income composition of resources**: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)
+- **Schooling**: Number of years of Schooling(years)
 
-**Numerical Predictors**
-
-- `Year`: Year
-- `Adult Mortality`: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)
-- `infant`: deathsNumber of Infant Deaths per 1000 population
-- `Alcohol`: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)
-- `percentage expenditure`: Expenditure on health as a percentage of Gross Domestic Product per capita(%)
-- `Hepatitis B`: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)
-- `Measles`: Measles - number of reported cases per 1000 population
-- `BMI`: Average Body Mass Index of entire population
-- `under-five deaths`: Number of under-five deaths per 1000 population
-- `Polio`: Polio (Pol3) immunization coverage among 1-year-olds (%)
-- `Total expenditure`: General government expenditure on health as a percentage of total government expenditure (%)
-- `Diphtheria`: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)
-- `HIV/AIDS`: Deaths per 1 000 live births HIV/AIDS (0-4 years)
-- `GDP`: Gross Domestic Product per capita (in USD)
-- `Population`: Population of the country
-- `thinness 1-19 years`: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )
-- `thinness 5-9 years`: Prevalence of thinness among children for Age 5 to 9(%)
-- `Income composition of resources`: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)
-- `Schooling`: Number of years of Schooling(years)
-
-**Categotical Predictors**
-
-- `Country`: Country
-- `Status`: Developed or Developing status
-
-### Background information
-
-The GHO data repository is WHO's gateway to health-related statistics which provides access to a variety of indicators on priority health topics including mortality and burden of diseases, environmental health, violence and injuries etc. (http://apps.who.int/gho/data/node.resources). 
-
-The economic data such as GDP is collected from the National Accounts Main Aggregates Database under United Nations which collects and disseminates economic statistics from countries worldwide (https://unstats.un.org/unsd/snaama/Index). 
-
-By combining the data from these two databases and exploring the interactions between the variables such as immunization, moratlity, education and economic factors, we expect to build a robust multiple linear regression model to predict the life expectancy more accurately.
+For this project, we would like to:
+- identify the major factors that affect the life expectancy
+- explore the interactions between the variables such as immunization, moratlity, education, economic factors etc.
+- discover the corelation between different factors
+- perform residual and outlier diagnostics to exclude some influential points if any
+- build a robust multiple linear regression model to predict the life expectancy
+- build a classifier to estimate the status of a country (developing or developed)
 
 
-### Statement of interest
-
-- Identify the major factors that affect the life expectancy
-- Explore the interactions between different variables, such as lower life expectancy vs healthcare expenditure
-- Discover the corelation between different factors
-- Build model to predict life expectancy for a certain country
-- Based on life expectancy data to classify the status of a country (developing or developed)
-
-
-### Evidence of data loading
-```{r message=FALSE, warning=FALSE}
-library(knitr)
-original_data = read.csv("Life Expectancy Data.csv")
-kable(t(original_data[sample(nrow(original_data), 5), ]))
-```
+***
 
 ## Methods
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r, include=FALSE}
 #install.packages("DAAG")
 #install.packages("corrplot")
 #install.packages("ggplot2")
@@ -102,13 +70,17 @@ kable(t(original_data[sample(nrow(original_data), 5), ]))
 library(DAAG)
 library(corrplot)
 library(ggplot2)
+library(magrittr)
+library(knitr)
 library(tidyr)
-set.seed(42)
 ```
 
-Missing values analysis: 
+
+### Missing values analysis: 
 
 ```{r}
+original_data = read.csv("Life Expectancy Data.csv")
+kable(t(original_data[sample(nrow(original_data), 5), ]))
 kable(colSums(is.na(original_data)), col.names = "Number of missing values")
 ```
 
@@ -129,23 +101,59 @@ nrow(original_data) - nrow(data)
 ggplot(gather(data[-c(1, 3)]), aes(value)) + 
     geom_histogram(bins = 10) + 
     facet_wrap(~key, scales = 'free_x')
-```
-
-```{r}
 ggplot(data, aes(x = Status, y = Life.expectancy)) + geom_boxplot()
-#ggplot(data, aes(x = Adult.Mortality, y = Life.expectancy)) + geom_boxplot()
+ggplot(data, aes(x = Adult.Mortality, y = Life.expectancy)) + geom_boxplot()
 ```
 
 
-```{r}
-data = data[-1] #exclude country from dataset
 
-corrplot(cor(data[-c(2)]), method = "circle")
-#plot(data$Country, data$Life.expectancy, xlab = "Country", ylab = "Life Expectancy")
+
+This original dataset contains `Country` variable which we would not use for model building. Therefore, this column is excluded from the following data analysis as well as the records with `NA` in some of the columns mentioned above. This will reduce the size of the original dataset from 2938 to 1649 rows, which captures majority of the information and allows the speed of modeling to be more efficient. 
+
+Below lists the summary and structure of the cleaned dataset.
+
+```{r}
+summary(data)
+data = na.omit(data)
+data = data[-1] #exclude country from dataset
+str(data)
+```
+
+
+### Data Visualization
+
+Let's take a look of the dataset using plots of `Life Expectancy` vs `Status` or `Year`. The boxplot indicates that there is significant difference in `Life Expectancy` between the `Developed` and `Developing` countries. As expected, the `Life Expectancy` increases as the `Year` passes by and the Violin plot shows that the data is well distributed across different years. 
+
+```{r}
+par(mfrow=c(1,2))
+# Histogram of Life Expectancy
+hist(data$Life.expectancy,
+     xlab = "Life Expectancy",
+     main = "Distribution of Life Expectancy",
+     col = "dodgerblue",
+     breaks = 25)
+# Boxplot of Life Expectancy vs Country Status (Developed vs Developing)
 plot(data$Status,
      data$Life.expectancy,
      xlab = "Status",
-     ylab = "Life Expectancy")
+     ylab = "Life Expectancy",
+     main = "Life Expectancy vs. Status",
+     col = c(2,3))
+
+# Violin plot of Life Expectancy vs. Year
+data %>% ggplot() + geom_violin(aes(x=Year, y=Life.expectancy, group=Year, fill=Year)) + labs(title = "Life Expectancy vs. Year")
+```
+
+
+### Exploratory Data Analysis
+
+```{r}
+corrplot(cor(data[-c(2)]), method = "circle")
+```
+
+
+
+```{r}
 
 # train test split 70/30 hold out
 train_size = floor(0.7 * nrow(data))
