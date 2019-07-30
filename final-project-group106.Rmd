@@ -50,6 +50,7 @@ The description of each variable for this dataset is listed below:
 - **Schooling**: Number of years of Schooling(years)
 
 For this project, we would like to:
+
 - identify the major factors that affect the life expectancy
 - explore the interactions between the variables such as immunization, moratlity, education, economic factors etc.
 - discover the corelation between different factors
