@@ -77,6 +77,7 @@ library(knitr)
 library(tidyr)
 library(GGally)
 library(faraway)
+library(lmtest)
 ```
 
 
@@ -149,7 +150,7 @@ data %>% ggplot() + geom_violin(aes(x=Year, y=Life.expectancy, group=Year, fill=
 ```
 
 
-### Exploratory Data Analysis
+### Colinearity
 
 Colinearity issue is visualized using the following plots. Resulsts show that some predictors have strong collinearity issues, such as `infant.deaths` vs. `under.five.deaths`, `GDP` vs. `percentage.expenditure`, `Population` vs. `thinness..1.19.years` etc.
 
@@ -171,12 +172,12 @@ data.test = data[-train_idx, ]
 
 
 model.additive = lm(Life.expectancy ~ ., data.train)
-cv.lm(data.train, model.additive, m = 5, plotit = FALSE)
-mean((data.test$Life.expectancy - predict(model.additive, data.test)) ^ 2)
+# cv.lm(data.train, model.additive, m = 5, plotit = FALSE)
+ mean((data.test$Life.expectancy - predict(model.additive, data.test)) ^ 2)
 
 model.selected = step(lm(Life.expectancy ~ ., data.train), trace = FALSE)
-cv.lm(data.train, model.selected, m = 5, plotit = FALSE)
-mean((data.test$Life.expectancy - predict(model.selected, data.test)) ^ 2)
+# cv.lm(data.train, model.selected, m = 5, plotit = FALSE)
+ mean((data.test$Life.expectancy - predict(model.selected, data.test)) ^ 2)
 
 ```
 
@@ -193,6 +194,138 @@ which(vif(model.selected) > 5)
 ```
 
 The selected model efficiently removed some predictors which have colinearity issues, but not all. We can see infant.deaths and under.five.deaths are still co-exist in the selected model.
+
+
+```{r}
+plot(infant.deaths ~ under.five.deaths, data = data)
+```
+
+### Model Building
+```{r}
+# train test split 70/30 hold out
+set.seed(42)
+train_size = floor(0.7 * nrow(data))
+train_idx = sample(nrow(data), train_size)
+data_trn = data[train_idx, ]
+data_tst = data[-train_idx, ]
+```
+
+```{r}
+# Define functions
+calc_loocv_rmse = function(model) {
+  c("LOOCV_RMSE:",sqrt(mean((resid(model) / (1 - hatvalues(model))) ^ 2)))
+}
+
+calc_bp = function(model) {
+  c("BP test:", unname(bptest(model)$p.value))
+}
+
+calc_shapiro = function(model) {
+  c("Shapiro test:", unname(shapiro.test(resid(model))$p.value))
+}
+
+calc_adj_r2 = function(model) {
+  c("Adj.R2:", summary(model)$adj.r.squared)
+}
+```
+
+```{r}
+# Model_1, basic additive model with all the parameters
+model_1 = lm(Life.expectancy ~ ., data_trn)
+par(mfrow=c(2,2))
+plot(model_1)
+calc_bp(model_1)
+calc_shapiro(model_1)
+calc_loocv_rmse(model_1)
+calc_adj_r2(model_1)
+```
+
+```{r}
+# Model_2, backward AIC on additive model
+model_2 = step(model_1, trace = FALSE)
+coef(model_2)
+par(mfrow=c(2,2))
+plot(model_2)
+calc_bp(model_2)
+calc_shapiro(model_2)
+calc_loocv_rmse(model_2)
+calc_adj_r2(model_2)
+
+```
+
+```{r}
+# Model_3, backward BIC on additive model
+n = length(resid(model_1))
+model_3 = step(model_1, k = log(n), trace = FALSE)
+coef(model_3)
+par(mfrow=c(2,2))
+plot(model_3)
+calc_bp(model_3)
+calc_shapiro(model_3)
+calc_loocv_rmse(model_3)
+calc_adj_r2(model_3)
+
+```
+
+We can see that no big improvement on AIC and BIC results based on the additive model.
+
+Next, we will start with the interactive model.
+```{r}
+# Model_4, basic interactive model with all the parameters
+model_4 = lm(Life.expectancy ~ . ^ 2, data_trn)
+par(mfrow=c(2,2))
+plot(model_4)
+calc_bp(model_4)
+calc_shapiro(model_4)
+calc_loocv_rmse(model_4)
+calc_adj_r2(model_4)
+length(coef(model_4))
+```
+
+We can see that the interactive model using all the predictors turns out really big and there are 211 parameters in the model. We will focus on the parameters that are selected by Model_2 and apply AIC on the interactive model based on those parameters.
+
+
+```{r}
+# Model_5, interactive model based on Model_2
+# under.five.deaths is excluded because the colinearity issue with infant.deanths parameters
+coef(model_2)
+model_5 = lm(Life.expectancy ~ (Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure 
+                                + Diphtheria + HIV.AIDS + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2, data = data_trn)
+par(mfrow=c(2,2))
+plot(model_5)
+calc_bp(model_5)
+calc_shapiro(model_5)
+calc_loocv_rmse(model_5)
+calc_adj_r2(model_5)
+length(coef(model_5))
+
+```
+
+Model_5 has lower BP and Shapiro test results compared to the first 3 models, however, there are still 106 parameters in the model. We will use AIC and BIC to reduce the model.
+
+```{r}
+# Model_6, backward AIC on interactive model
+model_6 = step(model_5, trace = FALSE)
+par(mfrow=c(2,2))
+plot(model_5)
+calc_bp(model_5)
+calc_shapiro(model_5)
+calc_loocv_rmse(model_5)
+calc_adj_r2(model_5)
+```
+
+```{r}
+# Model_7, backward BIC on interactive model
+n = length(resid(model_5))
+model_7 = step(model_5, k = log(n), trace = FALSE)
+par(mfrow=c(2,2))
+plot(model_7)
+calc_bp(model_7)
+calc_shapiro(model_7)
+calc_loocv_rmse(model_7)
+calc_adj_r2(model_7)
+```
+
 
 ## Results
 
