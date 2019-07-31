@@ -172,12 +172,12 @@ data.test = data[-train_idx, ]
 
 
 model.additive = lm(Life.expectancy ~ ., data.train)
-# cv.lm(data.train, model.additive, m = 5, plotit = FALSE)
- mean((data.test$Life.expectancy - predict(model.additive, data.test)) ^ 2)
+cv.lm(data.train, model.additive, m = 5, plotit = FALSE)
+mean((data.test$Life.expectancy - predict(model.additive, data.test)) ^ 2)
 
 model.selected = step(lm(Life.expectancy ~ ., data.train), trace = FALSE)
-# cv.lm(data.train, model.selected, m = 5, plotit = FALSE)
- mean((data.test$Life.expectancy - predict(model.selected, data.test)) ^ 2)
+cv.lm(data.train, model.selected, m = 5, plotit = FALSE)
+mean((data.test$Life.expectancy - predict(model.selected, data.test)) ^ 2)
 
 ```
 
