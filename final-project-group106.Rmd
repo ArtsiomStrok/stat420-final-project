@@ -327,6 +327,74 @@ calc_adj_r2(model_7)
 ```
 
 
+
+
+We can see that model_7 still have 39 parameters. To simply the model, we can use p-value < 0.0001 to filter predictors. We will also add second order predictors and use AIC/BIC to further reduce model.
+```{r}
+length(coef(model_7))
+which(summary(model_7)$coefficients[,4] < 0.0001)
+
+```
+
+```{r}
+model_8 = lm(Life.expectancy ~ Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling +  Year:Income.composition.of.resources + Year:Schooling + Status:Adult.Mortality + Status:thinness..1.19.years + Adult.Mortality:Schooling + infant.deaths:Income.composition.of.resources + infant.deaths:Schooling + Alcohol:Total.expenditure + Alcohol:HIV.AIDS + Alcohol:Income.composition.of.resources + BMI:Diphtheria + BMI:Income.composition.of.resources + BMI:Schooling + Total.expenditure:Income.composition.of.resources + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data_trn)
+length(coef(model_8))
+```
+
+```{r}
+# Model_9, backward AIC on reduced model
+model_9 = step(model_8, trace = FALSE)
+par(mfrow=c(2,2))
+plot(model_9)
+calc_bp(model_9)
+calc_shapiro(model_9)
+calc_loocv_rmse(model_9)
+calc_adj_r2(model_9)
+```
+
+```{r}
+# Model_10, backward BIC on reduced model
+n = length(resid(model_8))
+model_10 = step(model_8, k = log(n), trace = FALSE)
+par(mfrow=c(2,2))
+plot(model_10)
+calc_bp(model_10)
+calc_shapiro(model_10)
+calc_loocv_rmse(model_10)
+calc_adj_r2(model_10)
+length(coef(model_10))
+```
+There are still 24 parameters after BIC step.
+
+Change strategy, use the first order predictors in model_8 to build the interactive and second order models and apply AIC/BIC on it.
+```{r}
+model_11 = lm(Life.expectancy ~ (Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2 + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data_trn)
+length(coef(model_11))
+```
+```{r}
+# Model_12, backward AIC on reduced model_11
+model_12 = step(model_11, trace = FALSE)
+par(mfrow=c(2,2))
+plot(model_12)
+calc_bp(model_12)
+calc_shapiro(model_12)
+calc_loocv_rmse(model_12)
+calc_adj_r2(model_12)
+length(coef(model_12))
+```
+
+```{r}
+# Model_13, backward BIC on reduced model_11
+n = length(resid(model_11))
+model_13 = step(model_11, k = log(n), trace = FALSE)
+par(mfrow=c(2,2))
+plot(model_13)
+calc_bp(model_13)
+calc_shapiro(model_13)
+calc_loocv_rmse(model_13)
+calc_adj_r2(model_13)
+length(coef(model_13))
+```
 ## Results
 
 ## Discussion
