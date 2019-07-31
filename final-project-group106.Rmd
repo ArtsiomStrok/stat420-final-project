@@ -68,12 +68,15 @@ For this project, we would like to:
 #install.packages("corrplot")
 #install.packages("ggplot2")
 #install.packages("tidyr")
+#install.packages("GGally")
 library(DAAG)
 library(corrplot)
 library(ggplot2)
 library(magrittr)
 library(knitr)
 library(tidyr)
+library(GGally)
+library(faraway)
 ```
 
 
@@ -148,8 +151,12 @@ data %>% ggplot() + geom_violin(aes(x=Year, y=Life.expectancy, group=Year, fill=
 
 ### Exploratory Data Analysis
 
-```{r}
+Colinearity issue is visualized using the following plots. Resulsts show that some predictors have strong collinearity issues, such as `infant.deaths` vs. `under.five.deaths`, `GDP` vs. `percentage.expenditure`, `Population` vs. `thinness..1.19.years` etc.
+
+```{r message=FALSE, warning=FALSE}
 corrplot(cor(data[-c(2)]), method = "circle")
+ggpairs(data[-c(2)])
+round(cor(data[-c(2)]),2)
 ```
 
 
@@ -173,6 +180,19 @@ mean((data.test$Life.expectancy - predict(model.selected, data.test)) ^ 2)
 
 ```
 
+
+VIF for the additive model
+```{r}
+vif(model.additive)
+which(vif(model.additive) > 5)
+```
+
+```{r}
+vif(model.selected)
+which(vif(model.selected) > 5)
+```
+
+The selected model efficiently removed some predictors which have colinearity issues, but not all. We can see infant.deaths and under.five.deaths are still co-exist in the selected model.
 
 ## Results
 
