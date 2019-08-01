@@ -20,7 +20,7 @@ options(scipen = 1, digits = 4, width = 80)
 
 Life expectancy has increased dramatically over the last few centuries. Since 1900 the global average life expectancy has more than doubled and there has been a huge development in health sector in the past 15 years resulting in improvement of human mortality rates especially in the developing nations in comparison to the past 30 years. Therefore, in this project, only data from year 2000-2015 is considered for exploration and analysis. 
 
-This dataset is a compilation of data from the Global Health Observatory (GHO) and United Nations. The GHO data repository is WHO's gateway to health-related statistics which provides access to a variety of indicators on priority health topics including mortality and burden of diseases, environmental health, violence and injuries etc. (http://apps.who.int/gho/data/node.resources). The economic data such as GDP is collected from the National Accounts Main Aggregates Database under United Nations which collects and disseminates economic statistics from countries worldwide (https://unstats.un.org/unsd/snaama/Index). 
+This dataset is a compilation of data from the Global Health Observatory (GHO) and United Nations. The GHO data repository is WHO's gateway to health-related statistics which provides access to a variety of indicators on priority health topics including mortality and burden of diseases, environmental health, violence and injuries etc. (http://apps.who.int/gho/data/node.resources). The economic data such as GDP is collected from the National Accounts Main Aggregates Database under United Nations which collects and disseminates economic statistics from countries worldwide (https://unstats.un.org/unsd/snaama/Index).
 
 This dataset is cleaned by removing some missing values, maily for population, Hepatitis B and GDP from less known countries and shared on Kaggle website (https://www.kaggle.com/kumarajarshi/life-expectancy-who). The final dataset contains 2938 observations with 22 variables which are more critical and representative among all the categories of health-related factors from year 2000 - 2015 for 193 countries.
 
@@ -63,7 +63,7 @@ For this project, we would like to:
 
 ## Methods
 
-```{r, include=FALSE}
+```{r, message=FALSE, warning=FALSE, include=FALSE}
 #install.packages("DAAG")
 #install.packages("corrplot")
 #install.packages("ggplot2")
@@ -78,10 +78,11 @@ library(tidyr)
 library(GGally)
 library(faraway)
 library(lmtest)
+set.seed(42)
 ```
 
 
-### Missing values analysis: 
+### Missing values analysis:
 
 ```{r}
 original_data = read.csv("Life Expectancy Data.csv")
@@ -100,7 +101,27 @@ Hepatitis B is missing in 553 samples. Samples belongs to different countries an
 nrow(original_data)
 data = na.omit(original_data)
 nrow(original_data) - nrow(data)
+summary(data)
 ```
+
+Looking at the summary data we can already see some inconsistencies. In `Infant Deaths` we see that the max value listed is 1600 which doesn't make sense since we're working with per 1000 population data. The same or similar numbers we can see for `Infant deaths`, `Measles`, `Under five deaths`
+```{r}
+
+boxplot(data$Adult.Mortality)
+kable(t(head(data[data$Adult.Mortality > boxplot(data$Adult.Mortality)$stats[5], ])))
+
+boxplot(data$infant.deaths)
+boxplot(data$infant.deaths)$stats[5]
+kable(t(head(data[data$infant.deaths > 200, ])))
+
+boxplot(data$Measles)
+kable(t(head(data[data$Measles > boxplot(data$Measles)$stats[5], ])))
+
+boxplot(data$under.five.deaths)
+kable(t(head(data[data$under.five.deaths > boxplot(data$under.five.deaths)$stats[5], ])))
+```
+
+
 
 ```{r}
 ggplot(gather(data[-c(1, 3)]), aes(value)) + 
@@ -113,7 +134,7 @@ ggplot(data, aes(x = Adult.Mortality, y = Life.expectancy)) + geom_boxplot()
 
 
 
-This original dataset contains `Country` variable which we would not use for model building. Therefore, this column is excluded from the following data analysis as well as the records with `NA` in some of the columns mentioned above. This will reduce the size of the original dataset from 2938 to 1649 rows, which captures majority of the information and allows the speed of modeling to be more efficient. 
+This original dataset contains `Country` variable which we would not use for model building. Therefore, this column is excluded from the following data analysis as well as the records with `NA` in some of the columns mentioned above. This will reduce the size of the original dataset from 2938 to 1649 rows, which captures majority of the information and allows the speed of modeling to be more efficient.
 
 Below lists the summary and structure of the cleaned dataset.
 
@@ -127,7 +148,7 @@ str(data)
 
 ### Data Visualization
 
-Let's take a look of the dataset using plots of `Life Expectancy` vs `Status` or `Year`. The boxplot indicates that there is significant difference in `Life Expectancy` between the `Developed` and `Developing` countries. As expected, the `Life Expectancy` increases as the `Year` passes by and the Violin plot shows that the data is well distributed across different years. 
+Let's take a look of the dataset using plots of `Life Expectancy` vs `Status` or `Year`. The boxplot indicates that there is significant difference in `Life Expectancy` between the `Developed` and `Developing` countries. As expected, the `Life Expectancy` increases as the `Year` passes by and the Violin plot shows that the data is well distributed across different years.
 
 ```{r}
 par(mfrow=c(1,2))
@@ -289,7 +310,7 @@ We can see that the interactive model using all the predictors turns out really 
 # Model_5, interactive model based on Model_2
 # under.five.deaths is excluded because the colinearity issue with infant.deanths parameters
 coef(model_2)
-model_5 = lm(Life.expectancy ~ (Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure 
+model_5 = lm(Life.expectancy ~ (Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure
                                 + Diphtheria + HIV.AIDS + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2, data = data_trn)
 par(mfrow=c(2,2))
 plot(model_5)
