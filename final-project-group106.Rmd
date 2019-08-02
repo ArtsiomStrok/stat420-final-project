@@ -78,6 +78,7 @@ library(tidyr)
 library(GGally)
 library(faraway)
 library(lmtest)
+library(MASS)
 set.seed(42)
 ```
 
@@ -176,7 +177,7 @@ data %>% ggplot() + geom_violin(aes(x=Year, y=Life.expectancy, group=Year, fill=
 Colinearity issue is visualized using the following plots. Resulsts show that some predictors have strong collinearity issues, such as `infant.deaths` vs. `under.five.deaths`, `GDP` vs. `percentage.expenditure`, `Population` vs. `thinness..1.19.years` etc.
 
 ```{r message=FALSE, warning=FALSE}
-corrplot(cor(data[-c(2)]), method = "circle")
+corrplot(cor(data[-c(2)]))
 ggpairs(data[-c(2)])
 round(cor(data[-c(2)]),2)
 ```
@@ -386,6 +387,9 @@ calc_adj_r2(model_10)
 length(coef(model_10))
 ```
 There are still 24 parameters after BIC step.
+```{r}
+
+```
 
 Change strategy, use the first order predictors in model_8 to build the interactive and second order models and apply AIC/BIC on it.
 ```{r}
@@ -416,6 +420,181 @@ calc_loocv_rmse(model_13)
 calc_adj_r2(model_13)
 length(coef(model_13))
 ```
+
+
+### Transformation exploration
+
+```{r}
+
+calculate_rmse <- function(actual, predicted){
+  mean((actual - predicted) ^ 2)
+}
+
+#BP-Test: Equal variance test
+calculate_bptest <- function(model){
+  bptest(model)$"p.value"
+}
+
+#Shaipro-Test: Normality test
+calculate_shapiro_test <- function(model){
+  shapiro.test(resid(model))$"p.value"
+}
+
+#Adjusted R_squared test
+calculate_adj_r2 <- function(model){
+  summary(model)$"adj.r.squared"
+}
+
+#LOOCV 
+calc_loocv_rmse = function(model) {
+  sqrt(mean((resid(model) / (1 - hatvalues(model))) ^ 2))
+}
+
+#Get metrics in table
+show_metrics <- function(model){
+  data.frame(bptest=toString(unname(calculate_bptest(model))),
+                                 shapiro_test=toString(unname(calculate_shapiro_test(model))),
+                                 adj_r2=toString(calculate_adj_r2(model)),
+                                 LOOCV=toString(calc_loocv_rmse(model)),
+                                 RMSE=toString(calculate_rmse(data_tst$Life.expectancy, predict(model, data_tst))))
+}
+```
+
+```{r}
+# This is the model that Mayank built
+formula = lm(Life.expectancy ~ Adult.Mortality + infant.deaths + Polio + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS + I(HIV.AIDS^2), data = data_trn)
+```
+
+
+
+Box-Cox confirms that it is not necessary to transform y variable.
+```{r}
+# Box-Cox Transformation
+par(mfrow=c(1,2))
+boxcox(formula, plotit = TRUE)
+boxcox(formula, plotit = TRUE, lambda = seq(0.5, 1.5, by = 0.1))
+```
+
+Explore the relationship between Life.expectancy and each predictor.
+```{r}
+plot(Life.expectancy ~ Adult.Mortality, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+main = "Life.expectancy vs Adult.Mortality")
+
+plot(Life.expectancy ~ infant.deaths, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+main = "Life.expectancy vs infant.deaths")
+
+plot(Life.expectancy ~ Polio, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+main = "Life.expectancy vs Polio")
+
+plot(Life.expectancy ~ HIV.AIDS, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+main = "Life.expectancy vs HIV.AIDS")
+
+plot(Life.expectancy ~ thinness.5.9.years, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+main = "Life.expectancy vs thinness.5.9.years")
+
+plot(Life.expectancy ~ Income.composition.of.resources, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+main = "Life.expectancy vs Income.composition.of.resources")
+
+plot(Life.expectancy ~ Schooling, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+main = "Life.expectancy vs Schooling")
+```
+
+```{r}
+lm_le_am = lm(Life.expectancy ~ Adult.Mortality, data = data_trn)
+show_metrics(lm_le_am)
+lm_le_am_log = lm(Life.expectancy ~ log(Adult.Mortality), data = data_trn)
+show_metrics(lm_le_am_log)
+# bp.test result is significantly improved with log transformation of Adult.Mortality.
+lm_le_am_poly = lm(Life.expectancy ~ Adult.Mortality + I(Adult.Mortality ^ 2), data = data_trn)
+show_metrics(lm_le_am_poly)
+# Polynomial transformation doesn't work.
+```
+
+
+
+```{r}
+lm_le_id = lm(Life.expectancy ~ infant.deaths, data = data_trn)
+show_metrics(lm_le_id)
+# lm_le_id_log = lm(Life.expectancy ~ log(infant.deaths), data = data_trn)
+# couldn't perform log transformation because of O values.
+
+lm_le_id_poly = lm(Life.expectancy ~ infant.deaths + I(infant.deaths ^ 2), data = data_trn)
+show_metrics(lm_le_id_poly)
+# Polynomial transformation of infant.deaths doesn't improve.
+```
+
+```{r}
+lm_le_po = lm(Life.expectancy ~ Polio, data = data_trn)
+show_metrics(lm_le_po)
+lm_le_po_log = lm(Life.expectancy ~ log(Polio), data = data_trn)
+show_metrics(lm_le_po_log)
+# bp.test result is improved with log transformation of Polio.
+lm_le_po_poly = lm(Life.expectancy ~ Polio + I(Polio ^ 2), data = data_trn)
+show_metrics(lm_le_po_poly)
+# Polynomial transformation also helps.
+
+```
+
+```{r}
+lm_le_hiv = lm(Life.expectancy ~ HIV.AIDS, data = data_trn)
+show_metrics(lm_le_hiv)
+lm_le_hiv_log = lm(Life.expectancy ~ log(HIV.AIDS), data = data_trn)
+show_metrics(lm_le_hiv_log)
+# bp.test result is significantly improved with log transformation of HIV.AIDS.
+lm_le_hiv_poly = lm(Life.expectancy ~ HIV.AIDS + I(HIV.AIDS ^ 2), data = data_trn)
+show_metrics(lm_le_hiv_poly)
+# Polynomial transformation also helps.
+lm_le_hiv_log_poly = lm(Life.expectancy ~ log(HIV.AIDS) + I(HIV.AIDS ^ 2), data = data_trn) # doesn't further improve
+show_metrics(lm_le_hiv_log_poly)
+```
+
+```{r}
+lm_le_thn = lm(Life.expectancy ~ thinness.5.9.years, data = data_trn)
+show_metrics(lm_le_thn)
+lm_le_thn_log = lm(Life.expectancy ~ log(thinness.5.9.years), data = data_trn)
+show_metrics(lm_le_thn_log)
+# bp.test result is significantly improved with log transformation.
+lm_le_thn_poly = lm(Life.expectancy ~ thinness.5.9.years + I(thinness.5.9.years ^ 2), data = data_trn)
+show_metrics(lm_le_thn_poly)
+# Polynomial transformation doesn't help a lot.
+```
+
+
+```{r}
+lm_le_icr = lm(Life.expectancy ~ Income.composition.of.resources, data = data_trn)
+show_metrics(lm_le_icr)
+# lm_le_icr_log = lm(Life.expectancy ~ log(Income.composition.of.resources), data = data_trn) couldn't perform log tranformation due to 0 values.
+
+# bp.test result is significantly improved with log transformation.
+lm_le_icr_poly = lm(Life.expectancy ~ Income.composition.of.resources + I(Income.composition.of.resources ^ 2), data = data_trn)
+show_metrics(lm_le_icr_poly)
+# Polynomial transformation helps a little.
+```
+
+```{r}
+lm_le_sch = lm(Life.expectancy ~ Schooling, data = data_trn)
+show_metrics(lm_le_sch)
+lm_le_sch_log = lm(Life.expectancy ~ log(Schooling), data = data_trn)
+show_metrics(lm_le_sch_log)
+# log transformation doesn't work.
+lm_le_sch_poly = lm(Life.expectancy ~ Schooling + I(Schooling ^ 2), data = data_trn)
+show_metrics(lm_le_sch_poly)
+# Polynomial transformation doesn't help very much.
+```
+
+
+
+```{r}
+# New model based on the transformation result
+model_trans = lm(Life.expectancy ~ log(Adult.Mortality) + infant.deaths + Polio  + I(Polio ^ 2) + HIV.AIDS + I(HIV.AIDS^2) + log(thinness.5.9.years) + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS, data = data_trn)
+show_metrics(formula)
+show_metrics(model_trans)
+
+# After transformation, it shows that bptest and shapiro test results improves a little.
+```
+
+
+
 ## Results
 
 ## Discussion
