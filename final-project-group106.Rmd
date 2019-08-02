@@ -17,6 +17,18 @@ options(scipen = 1, digits = 4, width = 80)
 
 ## Introduction
 
+***
+
+### Team information
+
+Name               NetID     Email
+----------------   -------   --------------------
+Artsiom Strok      astrok2   astrok2@illinois.edu 
+Lin Jiang          linj3     linj3@illinois.edu
+Mayank Chhablani   mchhab2	 mchhab2@illinois.edu
+----------------   -------   --------------------
+
+### Description of the dataset
 
 Life expectancy has increased dramatically over the last few centuries. Since 1900 the global average life expectancy has more than doubled and there has been a huge development in health sector in the past 15 years resulting in improvement of human mortality rates especially in the developing nations in comparison to the past 30 years. Therefore, in this project, only data from year 2000-2015 is considered for exploration and analysis. 
 
@@ -26,28 +38,48 @@ This dataset is cleaned by removing some missing values, maily for population, H
 
 The description of each variable for this dataset is listed below:
 
-- **Country**: Country
-- **Year**: Year
-- **Status**: Developed or Developing status
-- **Life expectancy**: Life Expectancy in age
-- **Adult Mortality**: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)
-- **infant**: deathsNumber of Infant Deaths per 1000 population
-- **Alcohol**: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)
-- **percentage expenditure**: Expenditure on health as a percentage of Gross Domestic Product per capita(%)
-- **Hepatitis B**: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)
-- **Measles**: Measles - number of reported cases per 1000 population
-- **BMI**: Average Body Mass Index of entire population
-- **under-five deaths**: Number of under-five deaths per 1000 population
-- **Polio**: Polio (Pol3) immunization coverage among 1-year-olds (%)
-- **Total expenditure**: General government expenditure on health as a percentage of total government expenditure (%)
-- **Diphtheria**: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)
-- **HIV/AIDS**: Deaths per 1 000 live births HIV/AIDS (0-4 years)
-- **GDP**: Gross Domestic Product per capita (in USD)
-- **Population**: Population of the country
-- **thinness 1-19 years**: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )
-- **thinness 5-9 years**: Prevalence of thinness among children for Age 5 to 9(%)
-- **Income composition of resources**: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)
-- **Schooling**: Number of years of Schooling(years)
+**Numerical Response**
+
+- `Life expectancy`: Life Expectancy in age
+
+**Numerical Predictors**
+
+- `Year`: Year
+- `Adult Mortality`: Adult Mortality Rates of both sexes (probability of dying between 15 and 60 years per 1000 population)
+- `infant`: deathsNumber of Infant Deaths per 1000 population
+- `Alcohol`: Alcohol, recorded per capita (15+) consumption (in litres of pure alcohol)
+- `percentage expenditure`: Expenditure on health as a percentage of Gross Domestic Product per capita(%)
+- `Hepatitis B`: Hepatitis B (HepB) immunization coverage among 1-year-olds (%)
+- `Measles`: Measles - number of reported cases per 1000 population
+- `BMI`: Average Body Mass Index of entire population
+- `under-five deaths`: Number of under-five deaths per 1000 population
+- `Polio`: Polio (Pol3) immunization coverage among 1-year-olds (%)
+- `Total expenditure`: General government expenditure on health as a percentage of total government expenditure (%)
+- `Diphtheria`: Diphtheria tetanus toxoid and pertussis (DTP3) immunization coverage among 1-year-olds (%)
+- `HIV/AIDS`: Deaths per 1 000 live births HIV/AIDS (0-4 years)
+- `GDP`: Gross Domestic Product per capita (in USD)
+- `Population`: Population of the country
+- `thinness 1-19 years`: Prevalence of thinness among children and adolescents for Age 10 to 19 (% )
+- `thinness 5-9 years`: Prevalence of thinness among children for Age 5 to 9(%)
+- `Income composition of resources`: Human Development Index in terms of income composition of resources (index ranging from 0 to 1)
+- `Schooling`: Number of years of Schooling(years)
+
+**Categotical Predictors**
+
+- `Country`: Country
+- `Status`: Developed or Developing status
+
+### Background information
+
+The GHO data repository is WHO's gateway to health-related statistics which provides access to a variety of indicators on priority health topics including mortality and burden of diseases, environmental health, violence and injuries etc. (http://apps.who.int/gho/data/node.resources). 
+
+The economic data such as GDP is collected from the National Accounts Main Aggregates Database under United Nations which collects and disseminates economic statistics from countries worldwide (https://unstats.un.org/unsd/snaama/Index). 
+
+
+By combining the data from these two databases and exploring the interactions between the variables such as immunization, moratlity, education and economic factors, we expect to build a robust multiple linear regression model to predict the life expectancy more accurately.
+
+
+### Statement of interest
 
 For this project, we would like to:
 
@@ -58,17 +90,33 @@ For this project, we would like to:
 - build a robust multiple linear regression model to predict the life expectancy
 - build a classifier to estimate the status of a country (developing or developed)
 
+### Samples of the data
+```{r message=FALSE, warning=FALSE}
+
+library(knitr)
+data = read.csv("Life Expectancy Data.csv")
+kable(t(data[sample(nrow(data), 5), ]))
+```
+
 
 ***
 
 ## Methods
 
+### Required packages:
+
+- DAAG
+- corrplot
+- ggplot2
+- magrittr
+- knitr
+- tidyr
+- GGally
+- faraway
+- lmtest
+
+
 ```{r, message=FALSE, warning=FALSE, include=FALSE}
-#install.packages("DAAG")
-#install.packages("corrplot")
-#install.packages("ggplot2")
-#install.packages("tidyr")
-#install.packages("GGally")
 library(DAAG)
 library(corrplot)
 library(ggplot2)
@@ -78,16 +126,57 @@ library(tidyr)
 library(GGally)
 library(faraway)
 library(lmtest)
-set.seed(42)
+set.seed(106)
+```
+
+```{r warning=FALSE, include=FALSE}
+calculate_rmse <- function(actual, predicted) {
+  mean((actual - predicted) ^ 2)
+}
+
+#BP-Test: Equal variance test
+calculate_bptest <- function(model) {
+  bptest(model)$p.value
+}
+
+#Shaipro-Test: Normality test
+calculate_shapiro_test <- function(model) {
+  shapiro.test(resid(model))$p.value
+}
+
+#Adjusted R_squared test
+calculate_adj_r2 <- function(model) {
+  summary(model)$adj.r.squared
+}
+
+#LOOCV
+calc_loocv_rmse = function(model) {
+  sqrt(mean((resid(model) / (1 - hatvalues(model))) ^ 2))
+}
+
+#Get metrics in table
+show_metrics <- function(model) {
+  kable(
+    data.frame(
+      bptest = toString(unname(calculate_bptest(model))),
+      shapiro_test = toString(unname(calculate_shapiro_test(model))),
+      adj_r2 = toString(calculate_adj_r2(model)),
+      LOOCV = toString(calc_loocv_rmse(model)),
+      TRAIN_RMSE = toString(calculate_rmse(data.train$Life.expectancy, predict(model, data.train))),
+      TEST_RMSE = toString(calculate_rmse(data.test$Life.expectancy, predict(model, data.test)))
+    )
+  )
+}
 ```
 
 
-### Missing values analysis:
+
+### Data analysis:
 
 ```{r}
 original_data = read.csv("Life Expectancy Data.csv")
 kable(t(original_data[sample(nrow(original_data), 5), ]))
-kable(colSums(is.na(original_data)), col.names = "Number of missing values")
+kable(sort(colSums(is.na(original_data)), decreasing = TRUE), col.names = "Number of missing values")
 ```
 
 
@@ -108,17 +197,16 @@ Looking at the summary data we can already see some inconsistencies. In `Infant 
 ```{r}
 
 boxplot(data$Adult.Mortality)
-kable(t(head(data[data$Adult.Mortality > boxplot(data$Adult.Mortality)$stats[5], ])))
+#kable(t(head(data[data$Adult.Mortality > boxplot(data$Adult.Mortality)$stats[5], ])))
 
 boxplot(data$infant.deaths)
-boxplot(data$infant.deaths)$stats[5]
-kable(t(head(data[data$infant.deaths > 200, ])))
+#kable(t(head(data[data$infant.deaths > boxplot(data$infant.deaths)$stats[5], ])))
 
 boxplot(data$Measles)
-kable(t(head(data[data$Measles > boxplot(data$Measles)$stats[5], ])))
+#kable(t(head(data[data$Measles > boxplot(data$Measles)$stats[5], ])))
 
 boxplot(data$under.five.deaths)
-kable(t(head(data[data$under.five.deaths > boxplot(data$under.five.deaths)$stats[5], ])))
+#kable(t(head(data[data$under.five.deaths > boxplot(data$under.five.deaths)$stats[5], ])))
 ```
 
 
@@ -130,8 +218,6 @@ ggplot(gather(data[-c(1, 3)]), aes(value)) +
 ggplot(data, aes(x = Status, y = Life.expectancy)) + geom_boxplot()
 ggplot(data, aes(x = Adult.Mortality, y = Life.expectancy)) + geom_boxplot()
 ```
-
-
 
 
 This original dataset contains `Country` variable which we would not use for model building. Therefore, this column is excluded from the following data analysis as well as the records with `NA` in some of the columns mentioned above. This will reduce the size of the original dataset from 2938 to 1649 rows, which captures majority of the information and allows the speed of modeling to be more efficient.
@@ -151,23 +237,32 @@ str(data)
 Let's take a look of the dataset using plots of `Life Expectancy` vs `Status` or `Year`. The boxplot indicates that there is significant difference in `Life Expectancy` between the `Developed` and `Developing` countries. As expected, the `Life Expectancy` increases as the `Year` passes by and the Violin plot shows that the data is well distributed across different years.
 
 ```{r}
-par(mfrow=c(1,2))
+par(mfrow = c(1, 2))
 # Histogram of Life Expectancy
-hist(data$Life.expectancy,
-     xlab = "Life Expectancy",
-     main = "Distribution of Life Expectancy",
-     col = "dodgerblue",
-     breaks = 25)
+hist(
+  data$Life.expectancy,
+  xlab = "Life Expectancy",
+  main = "Distribution of Life Expectancy",
+  col = "dodgerblue",
+  breaks = 25
+)
 # Boxplot of Life Expectancy vs Country Status (Developed vs Developing)
-plot(data$Status,
-     data$Life.expectancy,
-     xlab = "Status",
-     ylab = "Life Expectancy",
-     main = "Life Expectancy vs. Status",
-     col = c(2,3))
+plot(
+  data$Status,
+  data$Life.expectancy,
+  xlab = "Status",
+  ylab = "Life Expectancy",
+  main = "Life Expectancy vs. Status",
+  col = c(2, 3)
+)
 
 # Violin plot of Life Expectancy vs. Year
-data %>% ggplot() + geom_violin(aes(x=Year, y=Life.expectancy, group=Year, fill=Year)) + labs(title = "Life Expectancy vs. Year")
+data %>% ggplot() + geom_violin(aes(
+  x = Year,
+  y = Life.expectancy,
+  group = Year,
+  fill = Year
+)) + labs(title = "Life Expectancy vs. Year")
 ```
 
 
@@ -181,184 +276,291 @@ ggpairs(data[-c(2)])
 round(cor(data[-c(2)]),2)
 ```
 
+### Train test split
 
 
 ```{r}
-
 # train test split 70/30 hold out
 train_size = floor(0.7 * nrow(data))
 train_idx = sample(nrow(data), train_size)
 data.train = data[train_idx, ]
 data.test = data[-train_idx, ]
-
-
-model.additive = lm(Life.expectancy ~ ., data.train)
-cv.lm(data.train, model.additive, m = 5, plotit = FALSE)
-mean((data.test$Life.expectancy - predict(model.additive, data.test)) ^ 2)
-
-model.selected = step(lm(Life.expectancy ~ ., data.train), trace = FALSE)
-cv.lm(data.train, model.selected, m = 5, plotit = FALSE)
-mean((data.test$Life.expectancy - predict(model.selected, data.test)) ^ 2)
-
-```
-
-
-VIF for the additive model
-```{r}
-vif(model.additive)
-which(vif(model.additive) > 5)
-```
-
-```{r}
-vif(model.selected)
-which(vif(model.selected) > 5)
-```
-
-The selected model efficiently removed some predictors which have colinearity issues, but not all. We can see infant.deaths and under.five.deaths are still co-exist in the selected model.
-
-
-```{r}
-plot(infant.deaths ~ under.five.deaths, data = data)
 ```
 
 ### Model Building
+
+`Steps to generate best model:`
+We will start with simple additive model and then use AIC/ BIC to weed out unnecessary predictors. We then, may try out interactions  and see if that improves our model and later, we may use response or, predictor transformations to improve our selected model.
+
+`Additve Model with all predictors`
+
 ```{r}
-# train test split 70/30 hold out
-set.seed(42)
-train_size = floor(0.7 * nrow(data))
-train_idx = sample(nrow(data), train_size)
-data_trn = data[train_idx, ]
-data_tst = data[-train_idx, ]
+model.additive = lm(Life.expectancy ~ ., data.train)
+#summary(model.additive)
+par(mfrow = c(2, 2))
+plot(model.additive)
+```
+
+So, looking at `Residual vs Fitted plot` that we may have issue of linearity and equal-variance. Similary, we need to check for `normality assumption` as dictated by `Normal Q-Q plot`
+
+
+Let's check for `Homoscedasticity`and `Normality` assumptions.
+
+```{r}
+show_metrics(model.additive)
+```
+
+So, from above data it looks liek although `Adjusted R^2` and `RMSE` is better, but, we `REJECT` both `Homoscedasticity`and `Normality` assumptions. Also, from summary of model it seems there is need to prune out some predictors.
+
+Let's apply AIC and BIC to see if we can improve our model
+
+```{r}
+model.additive.step.aic = step(model.additive, trace = FALSE)
+#summary(model.additive.step.aic)
+par(mfrow = c(2, 2))
+plot(model.additive.step.aic)
+```
+
+
+
+So, looking at AIC model, we can see that `GDP`vs `percentage.expenditure` collinearity issue has been removed by AIC. Also, some of the non-significant predictors are also removed.
+
+```{r}
+show_metrics(model.additive.step.aic)
+```
+
+Apart from reduction in predictors, there isn't a significant improvement. Let's try out BIC:
+
+```{r}
+model.additive.step.bic = step(model.additive, k = log(nrow(data.train)), trace = FALSE)
+#summary(model.additive.step.bic)
+par(mfrow = c(2, 2))
+plot(model.additive.step.bic)
+```
+
+
+```{r}
+show_metrics(model.additive.step.bic)
+```
+
+So, BIC and AIC resutls are almost same and so does the evaluatin metric but, we saw two improvements: (1) `Reduction in number of predictors` (2) `Reduction in influential points` as per the `Residual vs Leverage ` graph.
+
+Hence, let's select AIC model and try interactions. The BIC is little aggressive in removing predictors so, we are selecting AIC additive model.
+
+Also, let's check for variance-inflation-factor
+
+```{r, warning=FALSE}
+vif_aic_all_model = vif(model.additive.step.aic)
+vif_aic_all_model[vif_aic_all_model > 5]
+```
+
+As evident from above `VIF` computation, `infant.deaths` and `under.five.deaths` in the model are causing `collinearity issue`. This same issue we found during our correlation plot. Let's try to improve the model and remove issues which are violating linearity assumptions.
+
+`Applying Two-Way Interaction`:
+
+
+```{r}
+model.interaction = lm(Life.expectancy ~ . ^ 2, data = data.train)
+```
+
+Since, this will explode the number of predictors let's generate AIC and BIC models for this interaction model.
+
+AIC Interaction Model:
+
+```{r}
+model.interaction.step.aic = step(model.interaction, trace = 0)
+#summary(model.interaction.step.aic)
+
+par(mfrow = c(2, 2))
+plot(model.interaction.step.aic)
+
 ```
 
 ```{r}
-# Define functions
-calc_loocv_rmse = function(model) {
-  c("LOOCV_RMSE:",sqrt(mean((resid(model) / (1 - hatvalues(model))) ^ 2)))
-}
+show_metrics(model.interaction.step.aic)
+```
 
-calc_bp = function(model) {
-  c("BP test:", unname(bptest(model)$p.value))
-}
+AIC and BIC model are again somewhat similar.
+Total numbr of predictors used by AIC is 119 and we can see that with interactions we have made improvement in `adjusted r_squared` and `bptest`. Let's see the `VIF imapct`
 
-calc_shapiro = function(model) {
-  c("Shapiro test:", unname(shapiro.test(resid(model))$p.value))
-}
 
-calc_adj_r2 = function(model) {
-  c("Adj.R2:", summary(model)$adj.r.squared)
-}
+```{r}
+vif_interaction_model = vif(model.interaction.step.aic)
+vif_interaction_model[vif_interaction_model > 5]
+```
+
+
+This interaction model is getting overly complicated. Let's inspect pairs scatter plot.
+
+
+```{r fig.height=30, fig.width=30}
+
+pairs(data.frame(data$Life.expectancy, data$Year, data$Status, data$Adult.Mortality, data$infant.deaths, data$Alcohol, data$percentage.expenditure, data$BMI, data$under.five.deaths, data$Polio, data$Total.expenditure, data$HIV.AIDS, data$thinness.5.9.years, data$Income.composition.of.resources, data$Schooling))
+```
+
+Based on this cross-predictor plots, we confirm that (a) `HIV.AIDS` has non-linear relationship with `Life.expectancy' and, (B) `HIV.AIDS` and `Adult.Mortality` are also interacting non-linearly. Also, we may condsider removing `Year` because it may divert model in different direction because of its chaotic relationship with the response. 
+
+Check for impact of high VIF predictors.
+
+```{r}
+model_selected_wo_underfive = lm(
+  Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling,
+  data = data.train
+)
+
+model_selected_wo_infant.deaths = lm(
+  Life.expectancy ~ Year + Status + Adult.Mortality + under.five.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling,
+  data = data.train
+)
+
+model_selected_underfive = lm(
+  under.five.deaths ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI  + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling,
+  data = data.train
+)
+
+model_selected_infant.deaths = lm(
+  infant.deaths ~ Year + Status + Adult.Mortality + under.five.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling,
+  data = data.train
+)
+
+cor(resid(model_selected_underfive),
+    resid(model_selected_wo_underfive))
+
+cor(resid(model_selected_infant.deaths),
+    resid(model_selected_wo_infant.deaths))
+
+```
+
+
+Based on this we can get rid of `under.five.deaths`
+
+
+```{r}
+model_selected = lm(
+  Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling ,
+  data = data.train
+)
+par(mfrow = c(2, 2))
+plot(model_selected)
 ```
 
 ```{r}
-# Model_1, basic additive model with all the parameters
-model_1 = lm(Life.expectancy ~ ., data_trn)
+show_metrics(model_selected)
+```
+
+```{r}
+vif(model_selected)
+```
+
+Looks like none of our predictor is causing inflation in variance.
+Let's consider interaction of these predictors.
+
+
+```{r}
+model_selected_interactions = lm(
+  Life.expectancy ~ (
+    Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling
+  ) ^ 2 ,
+  data = data.train
+)
+par(mfrow = c(2, 2))
+plot(model_selected_interactions)
+```
+
+```{r}
+show_metrics(model_selected_interactions)
+```
+
+```{r}
+model_selected_interactions_aic = step(model_selected_interactions, trace = FALSE)
+#summary(model_selected_interactions_aic)
+```
+
+```{r}
+show_metrics(model_selected_interactions_aic)
+```
+
+```{r}
+model_selected_interactions_bic=step(model_selected_interactions, trace=0, k = log(nrow(data.train)))
+#summary(model_selected_interactions_bic)
+
+show_metrics(model_selected_interactions_bic)
 par(mfrow=c(2,2))
-plot(model_1)
-calc_bp(model_1)
-calc_shapiro(model_1)
-calc_loocv_rmse(model_1)
-calc_adj_r2(model_1)
-```
-
-```{r}
-# Model_2, backward AIC on additive model
-model_2 = step(model_1, trace = FALSE)
-coef(model_2)
-par(mfrow=c(2,2))
-plot(model_2)
-calc_bp(model_2)
-calc_shapiro(model_2)
-calc_loocv_rmse(model_2)
-calc_adj_r2(model_2)
+plot(model_selected_interactions_bic)
 
 ```
 
 ```{r}
-# Model_3, backward BIC on additive model
-n = length(resid(model_1))
-model_3 = step(model_1, k = log(n), trace = FALSE)
-coef(model_3)
-par(mfrow=c(2,2))
-plot(model_3)
-calc_bp(model_3)
-calc_shapiro(model_3)
-calc_loocv_rmse(model_3)
-calc_adj_r2(model_3)
-
+model_selected_poly_interactions=lm(Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + infant.deaths:Polio +  Adult.Mortality:HIV.AIDS + I(HIV.AIDS^2) , data=data.train)
+par(mfrow = c(2, 2))
+plot(model_selected_poly_interactions)
+show_metrics(model_selected_poly_interactions)
 ```
 
-We can see that no big improvement on AIC and BIC results based on the additive model.
-
-Next, we will start with the interactive model.
 ```{r}
-# Model_4, basic interactive model with all the parameters
-model_4 = lm(Life.expectancy ~ . ^ 2, data_trn)
-par(mfrow=c(2,2))
-plot(model_4)
-calc_bp(model_4)
-calc_shapiro(model_4)
-calc_loocv_rmse(model_4)
-calc_adj_r2(model_4)
-length(coef(model_4))
+model_selected_poly_interactions=lm(Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS +I(HIV.AIDS^2) , data=data.train)
+par(mfrow = c(2, 2))
+plot(model_selected_poly_interactions)
+show_metrics(model_selected_poly_interactions)
+vif_poly = vif(model_selected_poly_interactions)
+vif_poly[vif_poly > 5]
+length(coef(model_selected_poly_interactions))
 ```
 
-We can see that the interactive model using all the predictors turns out really big and there are 211 parameters in the model. We will focus on the parameters that are selected by Model_2 and apply AIC on the interactive model based on those parameters.
+```{r}
+model_selected_poly_interactions=lm(Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS +I(HIV.AIDS^2) , data=data.train)
+model_selected_poly_interactions_aic=step(model_selected_poly_interactions, trace=0, k=log(nrow(data)))
+par(mfrow = c(2, 2))
+plot(model_selected_poly_interactions_aic)
+show_metrics(model_selected_poly_interactions_aic)
+vif_poly = vif(model_selected_poly_interactions_aic)
+vif_poly[vif_poly > 5]
+length(coef(model_selected_poly_interactions_aic))
+```
 
+```{r}
+
+model_selected_outliers=lm(formula = Life.expectancy ~  Adult.Mortality  + 
+    infant.deaths + Polio + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources  + 
+    Schooling  + Adult.Mortality:HIV.AIDS + I(HIV.AIDS^2), data = data.train, subset=abs(rstandard(model_selected_poly_interactions_aic))<2)
+
+par(mfrow=c(2,2))
+plot(model_selected_outliers)
+show_metrics(model_selected_outliers)
+#length(coef(model_selected_outliers))
+```
+
+
+Based on above plots, we can say that we have achieved a good model based with `10` predictors and the formula is:
+
+`formula = Life.expectancy ~ Adult.Mortality + infant.deaths + 
+    Polio + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + 
+    Schooling + Adult.Mortality:HIV.AIDS + I(HIV.AIDS^2)`
+    
+Also, looking at the model it seems, we are satisfying `assumptions of linear model`.
+
+Evaluation metric are as follows:
+
+```{r}
+show_metrics(model_selected_outliers)
+```
+
+-------------------------- REVIEW -------------------------------
 
 ```{r}
 # Model_5, interactive model based on Model_2
 # under.five.deaths is excluded because the colinearity issue with infant.deanths parameters
-coef(model_2)
 model_5 = lm(Life.expectancy ~ (Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure
-                                + Diphtheria + HIV.AIDS + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2, data = data_trn)
+                                + Diphtheria + HIV.AIDS + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2, data = data.train)
 par(mfrow=c(2,2))
 plot(model_5)
-calc_bp(model_5)
-calc_shapiro(model_5)
-calc_loocv_rmse(model_5)
-calc_adj_r2(model_5)
-length(coef(model_5))
 
-```
-
-Model_5 has lower BP and Shapiro test results compared to the first 3 models, however, there are still 106 parameters in the model. We will use AIC and BIC to reduce the model.
-
-```{r}
-# Model_6, backward AIC on interactive model
-model_6 = step(model_5, trace = FALSE)
-par(mfrow=c(2,2))
-plot(model_5)
-calc_bp(model_5)
-calc_shapiro(model_5)
-calc_loocv_rmse(model_5)
-calc_adj_r2(model_5)
-```
-
-```{r}
-# Model_7, backward BIC on interactive model
-n = length(resid(model_5))
-model_7 = step(model_5, k = log(n), trace = FALSE)
-par(mfrow=c(2,2))
-plot(model_7)
-calc_bp(model_7)
-calc_shapiro(model_7)
-calc_loocv_rmse(model_7)
-calc_adj_r2(model_7)
-```
-
-
-
-
-We can see that model_7 still have 39 parameters. To simply the model, we can use p-value < 0.0001 to filter predictors. We will also add second order predictors and use AIC/BIC to further reduce model.
-```{r}
-length(coef(model_7))
-which(summary(model_7)$coefficients[,4] < 0.0001)
+show_metrics(model_5)
 
 ```
 
 ```{r}
-model_8 = lm(Life.expectancy ~ Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling +  Year:Income.composition.of.resources + Year:Schooling + Status:Adult.Mortality + Status:thinness..1.19.years + Adult.Mortality:Schooling + infant.deaths:Income.composition.of.resources + infant.deaths:Schooling + Alcohol:Total.expenditure + Alcohol:HIV.AIDS + Alcohol:Income.composition.of.resources + BMI:Diphtheria + BMI:Income.composition.of.resources + BMI:Schooling + Total.expenditure:Income.composition.of.resources + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data_trn)
+model_8 = lm(Life.expectancy ~ Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling +  Year:Income.composition.of.resources + Year:Schooling + Status:Adult.Mortality + Status:thinness..1.19.years + Adult.Mortality:Schooling + infant.deaths:Income.composition.of.resources + infant.deaths:Schooling + Alcohol:Total.expenditure + Alcohol:HIV.AIDS + Alcohol:Income.composition.of.resources + BMI:Diphtheria + BMI:Income.composition.of.resources + BMI:Schooling + Total.expenditure:Income.composition.of.resources + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data.train)
 length(coef(model_8))
 ```
 
@@ -367,10 +569,6 @@ length(coef(model_8))
 model_9 = step(model_8, trace = FALSE)
 par(mfrow=c(2,2))
 plot(model_9)
-calc_bp(model_9)
-calc_shapiro(model_9)
-calc_loocv_rmse(model_9)
-calc_adj_r2(model_9)
 ```
 
 ```{r}
@@ -379,17 +577,14 @@ n = length(resid(model_8))
 model_10 = step(model_8, k = log(n), trace = FALSE)
 par(mfrow=c(2,2))
 plot(model_10)
-calc_bp(model_10)
-calc_shapiro(model_10)
-calc_loocv_rmse(model_10)
-calc_adj_r2(model_10)
+show_metrics(model_10)
 length(coef(model_10))
 ```
 There are still 24 parameters after BIC step.
 
 Change strategy, use the first order predictors in model_8 to build the interactive and second order models and apply AIC/BIC on it.
 ```{r}
-model_11 = lm(Life.expectancy ~ (Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2 + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data_trn)
+model_11 = lm(Life.expectancy ~ (Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2 + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data.train)
 length(coef(model_11))
 ```
 ```{r}
@@ -397,10 +592,7 @@ length(coef(model_11))
 model_12 = step(model_11, trace = FALSE)
 par(mfrow=c(2,2))
 plot(model_12)
-calc_bp(model_12)
-calc_shapiro(model_12)
-calc_loocv_rmse(model_12)
-calc_adj_r2(model_12)
+show_metrics(model_12)
 length(coef(model_12))
 ```
 
@@ -410,14 +602,20 @@ n = length(resid(model_11))
 model_13 = step(model_11, k = log(n), trace = FALSE)
 par(mfrow=c(2,2))
 plot(model_13)
-calc_bp(model_13)
-calc_shapiro(model_13)
-calc_loocv_rmse(model_13)
-calc_adj_r2(model_13)
+show_metrics(model_13)
 length(coef(model_13))
 ```
+
+---------------------- END OF REVIEW --------------------------
 ## Results
+
+MODEL COMPARISON + BEST MODEL + TRAIN vs TEST STATS
+
 
 ## Discussion
 
+Ideas for furhter improvemnts
+
 ## Appendix
+
+Put all not important stuff here 
