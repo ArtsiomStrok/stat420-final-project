@@ -542,14 +542,14 @@ Evaluation metric are as follows:
 show_metrics(model_selected_outliers)
 ```
 
-Box-Cox confirms that it is not necessary to transform y variable.
+Box-Cox shows that $\lambda$ = 0.5 is in the confidence interval and close to the maxinum, which suggests a tranformation of the form.
 ```{r, cache = cache}
 # Box-Cox Transformation
 par(mfrow = c(1, 2))
 boxcox(model_selected_outliers, plotit = TRUE)
 boxcox(model_selected_outliers,
        plotit = TRUE,
-       lambda = seq(0.5, 1.5, by = 0.1))
+       lambda = seq(0, 1, by = 0.1))
 ```
 
 Explore the relationship between Life.expectancy and each predictor.
