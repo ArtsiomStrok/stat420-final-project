@@ -521,15 +521,17 @@ length(coef(model_selected_poly_interactions_aic))
 ```
 
 ```{r}
-
-model_selected_outliers=lm(formula = Life.expectancy ~  Adult.Mortality  +
+model_selected_outliers = lm(
+  Life.expectancy ~  Adult.Mortality  +
     infant.deaths + Polio + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources  +
-    Schooling  + Adult.Mortality:HIV.AIDS + I(HIV.AIDS^2), data = data.train, subset=abs(rstandard(model_selected_poly_interactions_aic))<2)
+    Schooling  + Adult.Mortality:HIV.AIDS + I(HIV.AIDS ^ 2),
+  data = data.train,
+  subset = abs(rstandard(model_selected_poly_interactions_aic)) < 2
+)
 
-par(mfrow=c(2,2))
+par(mfrow = c(2, 2))
 plot(model_selected_outliers)
 show_metrics(model_selected_outliers)
-#length(coef(model_selected_outliers))
 ```
 
 
@@ -547,187 +549,122 @@ Evaluation metric are as follows:
 show_metrics(model_selected_outliers)
 ```
 
--------------------------- REVIEW -------------------------------
-
-```{r}
-# Model_5, interactive model based on Model_2
-# under.five.deaths is excluded because the colinearity issue with infant.deanths parameters
-model_5 = lm(Life.expectancy ~ (Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure
-                                + Diphtheria + HIV.AIDS + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2, data = data.train)
-par(mfrow=c(2,2))
-plot(model_5)
-
-show_metrics(model_5)
-
-```
-
-```{r}
-model_8 = lm(Life.expectancy ~ Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling +  Year:Income.composition.of.resources + Year:Schooling + Status:Adult.Mortality + Status:thinness..1.19.years + Adult.Mortality:Schooling + infant.deaths:Income.composition.of.resources + infant.deaths:Schooling + Alcohol:Total.expenditure + Alcohol:HIV.AIDS + Alcohol:Income.composition.of.resources + BMI:Diphtheria + BMI:Income.composition.of.resources + BMI:Schooling + Total.expenditure:Income.composition.of.resources + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data.train)
-length(coef(model_8))
-```
-
-```{r}
-# Model_9, backward AIC on reduced model
-model_9 = step(model_8, trace = FALSE)
-par(mfrow=c(2,2))
-plot(model_9)
-```
-
-```{r}
-# Model_10, backward BIC on reduced model
-n = length(resid(model_8))
-model_10 = step(model_8, k = log(n), trace = FALSE)
-par(mfrow=c(2,2))
-plot(model_10)
-show_metrics(model_10)
-length(coef(model_10))
-```
-There are still 24 parameters after BIC step.
-
-Change strategy, use the first order predictors in model_8 to build the interactive and second order models and apply AIC/BIC on it.
-```{r}
-model_11 = lm(Life.expectancy ~ (Adult.Mortality + BMI + Diphtheria + thinness..1.19.years + Income.composition.of.resources + Schooling) ^ 2 + I(Adult.Mortality^2) + I(BMI^2) + I(Diphtheria^2) + I(thinness..1.19.years^2) + I(Income.composition.of.resources^2) + I(Schooling^2), data = data.train)
-length(coef(model_11))
-```
-```{r}
-# Model_12, backward AIC on reduced model_11
-model_12 = step(model_11, trace = FALSE)
-par(mfrow=c(2,2))
-plot(model_12)
-show_metrics(model_12)
-length(coef(model_12))
-```
-
-```{r}
-# Model_13, backward BIC on reduced model_11
-n = length(resid(model_11))
-model_13 = step(model_11, k = log(n), trace = FALSE)
-par(mfrow=c(2,2))
-plot(model_13)
-show_metrics(model_13)
-length(coef(model_13))
-```
-
----------------------- END OF REVIEW --------------------------
-
-```{r}
-# This is the model that Mayank built
-formula = lm(Life.expectancy ~ Adult.Mortality + infant.deaths + Polio + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS + I(HIV.AIDS^2), data = data_trn)
-```
-
-
-
 Box-Cox confirms that it is not necessary to transform y variable.
 ```{r}
 # Box-Cox Transformation
-par(mfrow=c(1,2))
-boxcox(formula, plotit = TRUE)
-boxcox(formula, plotit = TRUE, lambda = seq(0.5, 1.5, by = 0.1))
+par(mfrow = c(1, 2))
+boxcox(model_selected_outliers, plotit = TRUE)
+boxcox(model_selected_outliers,
+       plotit = TRUE,
+       lambda = seq(0.5, 1.5, by = 0.1))
 ```
 
 Explore the relationship between Life.expectancy and each predictor.
 ```{r}
-plot(Life.expectancy ~ Adult.Mortality, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+plot(Life.expectancy ~ Adult.Mortality, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs Adult.Mortality")
 
-plot(Life.expectancy ~ infant.deaths, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+plot(Life.expectancy ~ infant.deaths, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs infant.deaths")
 
-plot(Life.expectancy ~ Polio, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+plot(Life.expectancy ~ Polio, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs Polio")
 
-plot(Life.expectancy ~ HIV.AIDS, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+plot(Life.expectancy ~ HIV.AIDS, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs HIV.AIDS")
 
-plot(Life.expectancy ~ thinness.5.9.years, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+plot(Life.expectancy ~ thinness.5.9.years, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs thinness.5.9.years")
 
-plot(Life.expectancy ~ Income.composition.of.resources, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+plot(Life.expectancy ~ Income.composition.of.resources, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs Income.composition.of.resources")
 
-plot(Life.expectancy ~ Schooling, data = data_trn, col = "grey", pch = 20, cex = 1.5,
+plot(Life.expectancy ~ Schooling, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs Schooling")
 ```
 
 ```{r}
-lm_le_am = lm(Life.expectancy ~ Adult.Mortality, data = data_trn)
+lm_le_am = lm(Life.expectancy ~ Adult.Mortality, data = data.train)
 show_metrics(lm_le_am)
-lm_le_am_log = lm(Life.expectancy ~ log(Adult.Mortality), data = data_trn)
+lm_le_am_log = lm(Life.expectancy ~ log(Adult.Mortality), data = data.train)
 show_metrics(lm_le_am_log)
 # bp.test result is significantly improved with log transformation of Adult.Mortality.
-lm_le_am_poly = lm(Life.expectancy ~ Adult.Mortality + I(Adult.Mortality ^ 2), data = data_trn)
+lm_le_am_poly = lm(Life.expectancy ~ Adult.Mortality + I(Adult.Mortality ^ 2), data = data.train)
 show_metrics(lm_le_am_poly)
 # Polynomial transformation doesn't work.
 ```
 
 
-
 ```{r}
-lm_le_id = lm(Life.expectancy ~ infant.deaths, data = data_trn)
+lm_le_id = lm(Life.expectancy ~ infant.deaths, data = data.train)
 show_metrics(lm_le_id)
-# lm_le_id_log = lm(Life.expectancy ~ log(infant.deaths), data = data_trn)
+# lm_le_id_log = lm(Life.expectancy ~ log(infant.deaths), data = data.train)
 # couldn't perform log transformation because of O values.
 
-lm_le_id_poly = lm(Life.expectancy ~ infant.deaths + I(infant.deaths ^ 2), data = data_trn)
+lm_le_id_poly = lm(Life.expectancy ~ infant.deaths + I(infant.deaths ^ 2), data = data.train)
 show_metrics(lm_le_id_poly)
 # Polynomial transformation of infant.deaths doesn't improve.
 ```
 
 ```{r}
-lm_le_po = lm(Life.expectancy ~ Polio, data = data_trn)
+lm_le_po = lm(Life.expectancy ~ Polio, data = data.train)
 show_metrics(lm_le_po)
-lm_le_po_log = lm(Life.expectancy ~ log(Polio), data = data_trn)
+lm_le_po_log = lm(Life.expectancy ~ log(Polio), data = data.train)
 show_metrics(lm_le_po_log)
 # bp.test result is improved with log transformation of Polio.
-lm_le_po_poly = lm(Life.expectancy ~ Polio + I(Polio ^ 2), data = data_trn)
+lm_le_po_poly = lm(Life.expectancy ~ Polio + I(Polio ^ 2), data = data.train)
 show_metrics(lm_le_po_poly)
 # Polynomial transformation also helps.
 
 ```
 
 ```{r}
-lm_le_hiv = lm(Life.expectancy ~ HIV.AIDS, data = data_trn)
+lm_le_hiv = lm(Life.expectancy ~ HIV.AIDS, data = data.train)
 show_metrics(lm_le_hiv)
-lm_le_hiv_log = lm(Life.expectancy ~ log(HIV.AIDS), data = data_trn)
+lm_le_hiv_log = lm(Life.expectancy ~ log(HIV.AIDS), data = data.train)
 show_metrics(lm_le_hiv_log)
 # bp.test result is significantly improved with log transformation of HIV.AIDS.
-lm_le_hiv_poly = lm(Life.expectancy ~ HIV.AIDS + I(HIV.AIDS ^ 2), data = data_trn)
+lm_le_hiv_poly = lm(Life.expectancy ~ HIV.AIDS + I(HIV.AIDS ^ 2), data = data.train)
 show_metrics(lm_le_hiv_poly)
 # Polynomial transformation also helps.
-lm_le_hiv_log_poly = lm(Life.expectancy ~ log(HIV.AIDS) + I(HIV.AIDS ^ 2), data = data_trn) # doesn't further improve
+lm_le_hiv_log_poly = lm(Life.expectancy ~ log(HIV.AIDS) + I(HIV.AIDS ^ 2), data = data.train) # doesn't further improve
 show_metrics(lm_le_hiv_log_poly)
 ```
 
 ```{r}
-lm_le_thn = lm(Life.expectancy ~ thinness.5.9.years, data = data_trn)
+lm_le_thn = lm(Life.expectancy ~ thinness.5.9.years, data = data.train)
 show_metrics(lm_le_thn)
-lm_le_thn_log = lm(Life.expectancy ~ log(thinness.5.9.years), data = data_trn)
+lm_le_thn_log = lm(Life.expectancy ~ log(thinness.5.9.years), data = data.train)
 show_metrics(lm_le_thn_log)
 # bp.test result is significantly improved with log transformation.
-lm_le_thn_poly = lm(Life.expectancy ~ thinness.5.9.years + I(thinness.5.9.years ^ 2), data = data_trn)
+lm_le_thn_poly = lm(Life.expectancy ~ thinness.5.9.years + I(thinness.5.9.years ^ 2),
+                    data = data.train)
 show_metrics(lm_le_thn_poly)
 # Polynomial transformation doesn't help a lot.
 ```
 
 
 ```{r}
-lm_le_icr = lm(Life.expectancy ~ Income.composition.of.resources, data = data_trn)
+lm_le_icr = lm(Life.expectancy ~ Income.composition.of.resources, data = data.train)
 show_metrics(lm_le_icr)
-# lm_le_icr_log = lm(Life.expectancy ~ log(Income.composition.of.resources), data = data_trn) couldn't perform log tranformation due to 0 values.
+# lm_le_icr_log = lm(Life.expectancy ~ log(Income.composition.of.resources), data = data.train) couldn't perform log tranformation due to 0 values.
 
 # bp.test result is significantly improved with log transformation.
-lm_le_icr_poly = lm(Life.expectancy ~ Income.composition.of.resources + I(Income.composition.of.resources ^ 2), data = data_trn)
+lm_le_icr_poly = lm(
+  Life.expectancy ~ Income.composition.of.resources + I(Income.composition.of.resources ^ 2),
+  data = data.train
+)
 show_metrics(lm_le_icr_poly)
 # Polynomial transformation helps a little.
 ```
 
 ```{r}
-lm_le_sch = lm(Life.expectancy ~ Schooling, data = data_trn)
+lm_le_sch = lm(Life.expectancy ~ Schooling, data = data.train)
 show_metrics(lm_le_sch)
-lm_le_sch_log = lm(Life.expectancy ~ log(Schooling), data = data_trn)
+lm_le_sch_log = lm(Life.expectancy ~ log(Schooling), data = data.train)
 show_metrics(lm_le_sch_log)
 # log transformation doesn't work.
-lm_le_sch_poly = lm(Life.expectancy ~ Schooling + I(Schooling ^ 2), data = data_trn)
+lm_le_sch_poly = lm(Life.expectancy ~ Schooling + I(Schooling ^ 2), data = data.train)
 show_metrics(lm_le_sch_poly)
 # Polynomial transformation doesn't help very much.
 ```
@@ -736,8 +673,8 @@ show_metrics(lm_le_sch_poly)
 
 ```{r}
 # New model based on the transformation result
-model_trans = lm(Life.expectancy ~ log(Adult.Mortality) + infant.deaths + Polio  + I(Polio ^ 2) + HIV.AIDS + I(HIV.AIDS^2) + log(thinness.5.9.years) + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS, data = data_trn)
-show_metrics(formula)
+model_trans = lm(Life.expectancy ~ log(Adult.Mortality) + infant.deaths + Polio  + I(Polio ^ 2) + HIV.AIDS + I(HIV.AIDS^2) + log(thinness.5.9.years) + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS, data = data.train)
+show_metrics(model_selected_outliers)
 show_metrics(model_trans)
 
 # After transformation, it shows that bptest and shapiro test results improves a little.
