@@ -13,6 +13,7 @@ urlcolor: cyan
 
 ```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
 options(scipen = 1, digits = 4, width = 80)
+cache = TRUE
 ```
 
 ## Introduction
@@ -91,7 +92,7 @@ For this project, we would like to:
 - build a classifier to estimate the status of a country (developing or developed)
 
 ### Samples of the data
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, cache = cache}
 
 library(knitr)
 data = read.csv("Life Expectancy Data.csv")
@@ -117,7 +118,7 @@ kable(t(data[sample(nrow(data), 5), ]))
 - MASS
 
 
-```{r, message=FALSE, warning=FALSE, include=FALSE}
+```{r, message=FALSE, warning=FALSE, include=FALSE, cache = cache}
 library(DAAG)
 library(corrplot)
 library(ggplot2)
@@ -131,7 +132,7 @@ library(MASS)
 set.seed(106)
 ```
 
-```{r warning=FALSE, include=FALSE}
+```{r warning=FALSE, include=FALSE, cache = cache}
 calculate_rmse <- function(actual, predicted) {
   mean((actual - predicted) ^ 2)
 }
@@ -175,7 +176,7 @@ show_metrics <- function(model) {
 
 ### Data analysis:
 
-```{r}
+```{r, cache = cache}
 original_data = read.csv("Life Expectancy Data.csv")
 kable(t(original_data[sample(nrow(original_data), 5), ]))
 kable(sort(colSums(is.na(original_data)), decreasing = TRUE), col.names = "Number of missing values")
@@ -188,57 +189,40 @@ Life expextancy and adult mortality is missing for 10 samples in 2013, all of th
 
 Hepatitis B is missing in 553 samples. Samples belongs to different countries and years.
 
-```{r}
+```{r, cache = cache}
 nrow(original_data)
 data = na.omit(original_data)
 nrow(original_data) - nrow(data)
-summary(data)
+data = data[-1] #exclude country from dataset
+kable(t(do.call(cbind, lapply(data, summary))))
 ```
+
 
 Looking at the summary data we can already see some inconsistencies. In `Infant Deaths` we see that the max value listed is 1600 which doesn't make sense since we're working with per 1000 population data. The same or similar numbers we can see for `Infant deaths`, `Measles`, `Under five deaths`
-```{r}
 
+```{r, cache = cache}
 boxplot(data$Adult.Mortality)
-#kable(t(head(data[data$Adult.Mortality > boxplot(data$Adult.Mortality)$stats[5], ])))
-
 boxplot(data$infant.deaths)
-#kable(t(head(data[data$infant.deaths > boxplot(data$infant.deaths)$stats[5], ])))
-
 boxplot(data$Measles)
-#kable(t(head(data[data$Measles > boxplot(data$Measles)$stats[5], ])))
-
 boxplot(data$under.five.deaths)
-#kable(t(head(data[data$under.five.deaths > boxplot(data$under.five.deaths)$stats[5], ])))
 ```
-
-
-
-```{r}
-ggplot(gather(data[-c(1, 3)]), aes(value)) + 
-    geom_histogram(bins = 10) + 
-    facet_wrap(~key, scales = 'free_x')
-ggplot(data, aes(x = Status, y = Life.expectancy)) + geom_boxplot()
-ggplot(data, aes(x = Adult.Mortality, y = Life.expectancy)) + geom_boxplot()
-```
-
 
 This original dataset contains `Country` variable which we would not use for model building. Therefore, this column is excluded from the following data analysis as well as the records with `NA` in some of the columns mentioned above. This will reduce the size of the original dataset from 2938 to 1649 rows, which captures majority of the information and allows the speed of modeling to be more efficient.
-
-Below lists the summary and structure of the cleaned dataset.
-
-```{r}
-summary(data)
-data = na.omit(data)
-data = data[-1] #exclude country from dataset
-str(data)
-```
 
 
 ### Data Visualization
 
+Let's take a look on histograms for each attribute in the dataset.
+
+```{r, cache = cache}
+ggplot(gather(data[-2]), aes(value)) + 
+    geom_histogram(bins = 10) + 
+    facet_wrap(~key, scales = 'free_x')
+```
+
 Let's take a look of the dataset using plots of `Life Expectancy` vs `Status` or `Year`. The boxplot indicates that there is significant difference in `Life Expectancy` between the `Developed` and `Developing` countries. As expected, the `Life Expectancy` increases as the `Year` passes by and the Violin plot shows that the data is well distributed across different years.
 
-```{r}
+```{r, cache = cache}
 par(mfrow = c(1, 2))
 # Histogram of Life Expectancy
 hist(
@@ -272,16 +256,23 @@ data %>% ggplot() + geom_violin(aes(
 
 Colinearity issue is visualized using the following plots. Resulsts show that some predictors have strong collinearity issues, such as `infant.deaths` vs. `under.five.deaths`, `GDP` vs. `percentage.expenditure`, `Population` vs. `thinness..1.19.years` etc.
 
-```{r message=FALSE, warning=FALSE}
-corrplot(cor(data[-c(2)]))
+```{r fig.height=15, fig.width=15, message=FALSE, warning=FALSE, cache=cache}
+corrplot(
+  cor(data[-c(2)]),
+  method = "color",
+  order = "hclust",
+  type = "lower",
+  outline = TRUE,
+  tl.col = "black",
+  addCoef.col = "darkgreen",
+)
 ggpairs(data[-c(2)])
-round(cor(data[-c(2)]),2)
 ```
 
 ### Train test split
 
 
-```{r}
+```{r, cache = cache}
 # train test split 70/30 hold out
 train_size = floor(0.7 * nrow(data))
 train_idx = sample(nrow(data), train_size)
@@ -292,11 +283,12 @@ data.test = data[-train_idx, ]
 ### Model Building
 
 `Steps to generate best model:`
+
 We will start with simple additive model and then use AIC/ BIC to weed out unnecessary predictors. We then, may try out interactions  and see if that improves our model and later, we may use response or, predictor transformations to improve our selected model.
 
 `Additve Model with all predictors`
 
-```{r}
+```{r, cache = cache}
 model.additive = lm(Life.expectancy ~ ., data.train)
 #summary(model.additive)
 par(mfrow = c(2, 2))
@@ -305,10 +297,9 @@ plot(model.additive)
 
 So, looking at `Residual vs Fitted plot` that we may have issue of linearity and equal-variance. Similary, we need to check for `normality assumption` as dictated by `Normal Q-Q plot`
 
-
 Let's check for `Homoscedasticity`and `Normality` assumptions.
 
-```{r}
+```{r, cache = cache}
 show_metrics(model.additive)
 ```
 
@@ -316,32 +307,30 @@ So, from above data it looks liek although `Adjusted R^2` and `RMSE` is better, 
 
 Let's apply AIC and BIC to see if we can improve our model
 
-```{r}
+```{r, cache = cache}
 model.additive.step.aic = step(model.additive, trace = FALSE)
-#summary(model.additive.step.aic)
+
 par(mfrow = c(2, 2))
 plot(model.additive.step.aic)
 ```
 
-
-
 So, looking at AIC model, we can see that `GDP`vs `percentage.expenditure` collinearity issue has been removed by AIC. Also, some of the non-significant predictors are also removed.
 
-```{r}
+```{r, cache = cache}
 show_metrics(model.additive.step.aic)
 ```
 
 Apart from reduction in predictors, there isn't a significant improvement. Let's try out BIC:
 
-```{r}
+```{r, cache = cache}
 model.additive.step.bic = step(model.additive, k = log(nrow(data.train)), trace = FALSE)
-#summary(model.additive.step.bic)
+
 par(mfrow = c(2, 2))
 plot(model.additive.step.bic)
 ```
 
 
-```{r}
+```{r, cache = cache}
 show_metrics(model.additive.step.bic)
 ```
 
@@ -351,7 +340,7 @@ Hence, let's select AIC model and try interactions. The BIC is little aggressive
 
 Also, let's check for variance-inflation-factor
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, cache = cache}
 vif_aic_all_model = vif(model.additive.step.aic)
 vif_aic_all_model[vif_aic_all_model > 5]
 ```
@@ -361,7 +350,7 @@ As evident from above `VIF` computation, `infant.deaths` and `under.five.deaths`
 `Applying Two-Way Interaction`:
 
 
-```{r}
+```{r, cache = cache}
 model.interaction = lm(Life.expectancy ~ . ^ 2, data = data.train)
 ```
 
@@ -369,16 +358,14 @@ Since, this will explode the number of predictors let's generate AIC and BIC mod
 
 AIC Interaction Model:
 
-```{r}
+```{r, cache = cache}
 model.interaction.step.aic = step(model.interaction, trace = 0)
-#summary(model.interaction.step.aic)
 
 par(mfrow = c(2, 2))
 plot(model.interaction.step.aic)
-
 ```
 
-```{r}
+```{r, cache = cache}
 show_metrics(model.interaction.step.aic)
 ```
 
@@ -386,7 +373,7 @@ AIC and BIC model are again somewhat similar.
 Total numbr of predictors used by AIC is 119 and we can see that with interactions we have made improvement in `adjusted r_squared` and `bptest`. Let's see the `VIF imapct`
 
 
-```{r}
+```{r, cache = cache}
 vif_interaction_model = vif(model.interaction.step.aic)
 vif_interaction_model[vif_interaction_model > 5]
 ```
@@ -395,8 +382,7 @@ vif_interaction_model[vif_interaction_model > 5]
 This interaction model is getting overly complicated. Let's inspect pairs scatter plot.
 
 
-```{r fig.height=30, fig.width=30}
-
+```{r fig.height=30, fig.width=30, cache = cache}
 pairs(data.frame(data$Life.expectancy, data$Year, data$Status, data$Adult.Mortality, data$infant.deaths, data$Alcohol, data$percentage.expenditure, data$BMI, data$under.five.deaths, data$Polio, data$Total.expenditure, data$HIV.AIDS, data$thinness.5.9.years, data$Income.composition.of.resources, data$Schooling))
 ```
 
@@ -404,7 +390,7 @@ Based on this cross-predictor plots, we confirm that (a) `HIV.AIDS` has non-line
 
 Check for impact of high VIF predictors.
 
-```{r}
+```{r, cache = cache}
 model_selected_wo_underfive = lm(
   Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling,
   data = data.train
@@ -437,7 +423,7 @@ cor(resid(model_selected_infant.deaths),
 Based on this we can get rid of `under.five.deaths`
 
 
-```{r}
+```{r, cache = cache}
 model_selected = lm(
   Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling ,
   data = data.train
@@ -446,11 +432,11 @@ par(mfrow = c(2, 2))
 plot(model_selected)
 ```
 
-```{r}
+```{r, cache = cache}
 show_metrics(model_selected)
 ```
 
-```{r}
+```{r, cache = cache}
 vif(model_selected)
 ```
 
@@ -458,7 +444,7 @@ Looks like none of our predictor is causing inflation in variance.
 Let's consider interaction of these predictors.
 
 
-```{r}
+```{r, cache = cache}
 model_selected_interactions = lm(
   Life.expectancy ~ (
     Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling
@@ -469,20 +455,20 @@ par(mfrow = c(2, 2))
 plot(model_selected_interactions)
 ```
 
-```{r}
+```{r, cache = cache}
 show_metrics(model_selected_interactions)
 ```
 
-```{r}
+```{r, cache = cache}
 model_selected_interactions_aic = step(model_selected_interactions, trace = FALSE)
 #summary(model_selected_interactions_aic)
 ```
 
-```{r}
+```{r, cache = cache}
 show_metrics(model_selected_interactions_aic)
 ```
 
-```{r}
+```{r, cache = cache}
 model_selected_interactions_bic=step(model_selected_interactions, trace=0, k = log(nrow(data.train)))
 #summary(model_selected_interactions_bic)
 
@@ -492,14 +478,14 @@ plot(model_selected_interactions_bic)
 
 ```
 
-```{r}
+```{r, cache = cache}
 model_selected_poly_interactions=lm(Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + infant.deaths:Polio +  Adult.Mortality:HIV.AIDS + I(HIV.AIDS^2) , data=data.train)
 par(mfrow = c(2, 2))
 plot(model_selected_poly_interactions)
 show_metrics(model_selected_poly_interactions)
 ```
 
-```{r}
+```{r, cache = cache}
 model_selected_poly_interactions=lm(Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS +I(HIV.AIDS^2) , data=data.train)
 par(mfrow = c(2, 2))
 plot(model_selected_poly_interactions)
@@ -509,7 +495,7 @@ vif_poly[vif_poly > 5]
 length(coef(model_selected_poly_interactions))
 ```
 
-```{r}
+```{r, cache = cache}
 model_selected_poly_interactions=lm(Life.expectancy ~ Year + Status + Adult.Mortality + infant.deaths + Alcohol + percentage.expenditure + BMI   + Polio + Total.expenditure + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS +I(HIV.AIDS^2) , data=data.train)
 model_selected_poly_interactions_aic=step(model_selected_poly_interactions, trace=0, k=log(nrow(data)))
 par(mfrow = c(2, 2))
@@ -520,7 +506,7 @@ vif_poly[vif_poly > 5]
 length(coef(model_selected_poly_interactions_aic))
 ```
 
-```{r}
+```{r, cache = cache}
 model_selected_outliers = lm(
   Life.expectancy ~  Adult.Mortality  +
     infant.deaths + Polio + HIV.AIDS + thinness.5.9.years + Income.composition.of.resources  +
@@ -545,12 +531,12 @@ Also, looking at the model it seems, we are satisfying `assumptions of linear mo
 
 Evaluation metric are as follows:
 
-```{r}
+```{r, cache = cache}
 show_metrics(model_selected_outliers)
 ```
 
 Box-Cox confirms that it is not necessary to transform y variable.
-```{r}
+```{r, cache = cache}
 # Box-Cox Transformation
 par(mfrow = c(1, 2))
 boxcox(model_selected_outliers, plotit = TRUE)
@@ -560,7 +546,7 @@ boxcox(model_selected_outliers,
 ```
 
 Explore the relationship between Life.expectancy and each predictor.
-```{r}
+```{r, cache = cache}
 plot(Life.expectancy ~ Adult.Mortality, data = data.train, col = "grey", pch = 20, cex = 1.5,
 main = "Life.expectancy vs Adult.Mortality")
 
@@ -583,7 +569,7 @@ plot(Life.expectancy ~ Schooling, data = data.train, col = "grey", pch = 20, cex
 main = "Life.expectancy vs Schooling")
 ```
 
-```{r}
+```{r, cache = cache}
 lm_le_am = lm(Life.expectancy ~ Adult.Mortality, data = data.train)
 show_metrics(lm_le_am)
 lm_le_am_log = lm(Life.expectancy ~ log(Adult.Mortality), data = data.train)
@@ -595,7 +581,7 @@ show_metrics(lm_le_am_poly)
 ```
 
 
-```{r}
+```{r, cache = cache}
 lm_le_id = lm(Life.expectancy ~ infant.deaths, data = data.train)
 show_metrics(lm_le_id)
 # lm_le_id_log = lm(Life.expectancy ~ log(infant.deaths), data = data.train)
@@ -606,7 +592,7 @@ show_metrics(lm_le_id_poly)
 # Polynomial transformation of infant.deaths doesn't improve.
 ```
 
-```{r}
+```{r, cache = cache}
 lm_le_po = lm(Life.expectancy ~ Polio, data = data.train)
 show_metrics(lm_le_po)
 lm_le_po_log = lm(Life.expectancy ~ log(Polio), data = data.train)
@@ -618,7 +604,7 @@ show_metrics(lm_le_po_poly)
 
 ```
 
-```{r}
+```{r, cache = cache}
 lm_le_hiv = lm(Life.expectancy ~ HIV.AIDS, data = data.train)
 show_metrics(lm_le_hiv)
 lm_le_hiv_log = lm(Life.expectancy ~ log(HIV.AIDS), data = data.train)
@@ -631,7 +617,7 @@ lm_le_hiv_log_poly = lm(Life.expectancy ~ log(HIV.AIDS) + I(HIV.AIDS ^ 2), data 
 show_metrics(lm_le_hiv_log_poly)
 ```
 
-```{r}
+```{r, cache = cache}
 lm_le_thn = lm(Life.expectancy ~ thinness.5.9.years, data = data.train)
 show_metrics(lm_le_thn)
 lm_le_thn_log = lm(Life.expectancy ~ log(thinness.5.9.years), data = data.train)
@@ -644,7 +630,7 @@ show_metrics(lm_le_thn_poly)
 ```
 
 
-```{r}
+```{r, cache = cache}
 lm_le_icr = lm(Life.expectancy ~ Income.composition.of.resources, data = data.train)
 show_metrics(lm_le_icr)
 # lm_le_icr_log = lm(Life.expectancy ~ log(Income.composition.of.resources), data = data.train) couldn't perform log tranformation due to 0 values.
@@ -658,7 +644,7 @@ show_metrics(lm_le_icr_poly)
 # Polynomial transformation helps a little.
 ```
 
-```{r}
+```{r, cache = cache}
 lm_le_sch = lm(Life.expectancy ~ Schooling, data = data.train)
 show_metrics(lm_le_sch)
 lm_le_sch_log = lm(Life.expectancy ~ log(Schooling), data = data.train)
@@ -671,7 +657,7 @@ show_metrics(lm_le_sch_poly)
 
 
 
-```{r}
+```{r, cache = cache}
 # New model based on the transformation result
 model_trans = lm(Life.expectancy ~ log(Adult.Mortality) + infant.deaths + Polio  + I(Polio ^ 2) + HIV.AIDS + I(HIV.AIDS^2) + log(thinness.5.9.years) + Income.composition.of.resources + Schooling + Adult.Mortality:HIV.AIDS, data = data.train)
 show_metrics(model_selected_outliers)
