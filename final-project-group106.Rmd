@@ -684,3 +684,9 @@ par(mfrow = c(2, 2))
 plot(best_model)
 show_metrics(best_model)
 ```
+
+## Discussion
+
+This dataset is quite complex since it contains 22 variables of health-related factors from year 2000 - 2015 for 193 countries. We didn't group data by country because we would like to build a more general model for prediction, however, this increases the challenge for model building. By ploting the response vs the single predictor, such as Life.expectancy vs Adult.Mortality, we can see that some countries has quite different distribution of Adult.Mortality and this will weaken the robustness of the final model by combining data from different countries together.
+
+Eventually we build a quite satisfying multiple linear regression model using AIC & BIC evaluation, dummy variables exploration, variable interaction, residual and outlier diagnoistics, response transformation, predictor polynomial regression, etc. This model has high bptest value and adjusted R square, low LOOCV and RMSE values. The shapiro test result is lower than 0.01 but the normal Q-Q plot looks good.
