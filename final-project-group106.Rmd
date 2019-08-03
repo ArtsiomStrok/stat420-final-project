@@ -89,7 +89,6 @@ For this project, we would like to:
 - discover the corelation between different factors
 - perform residual and outlier diagnostics to exclude some influential points if any
 - build a robust multiple linear regression model to predict the life expectancy
-- build a classifier to estimate the status of a country (developing or developed)
 
 ### Samples of the data
 ```{r message=FALSE, warning=FALSE, cache = cache}
@@ -205,6 +204,14 @@ boxplot(data$Adult.Mortality)
 boxplot(data$infant.deaths)
 boxplot(data$Measles)
 boxplot(data$under.five.deaths)
+
+data = data[
+  data$Adult.Mortality < boxplot(data$Adult.Mortality, plot = FALSE)$stats[5] &
+    data$infant.deaths < boxplot(data$infant.deaths, plot = FALSE)$stats[5] &
+    data$Measles < boxplot(data$Measles, plot = FALSE)$stats[5] &
+    data$under.five.deaths < boxplot(data$under.five.deaths, plot = FALSE)$stats[5]
+  , ]
+nrow(data)
 ```
 
 This original dataset contains `Country` variable which we would not use for model building. Therefore, this column is excluded from the following data analysis as well as the records with `NA` in some of the columns mentioned above. This will reduce the size of the original dataset from 2938 to 1649 rows, which captures majority of the information and allows the speed of modeling to be more efficient.
@@ -215,7 +222,7 @@ This original dataset contains `Country` variable which we would not use for mod
 Let's take a look on histograms for each attribute in the dataset.
 
 ```{r, cache = cache}
-ggplot(gather(data[-2]), aes(value)) + 
+ggplot(gather(data[-2]), aes(value)) +
     geom_histogram(bins = 10) + 
     facet_wrap(~key, scales = 'free_x')
 ```
@@ -272,7 +279,7 @@ ggpairs(data[-c(2)])
 ### Train test split
 
 
-```{r, cache = cache}
+```{r message=FALSE, warning=FALSE, cache=cache}
 # train test split 70/30 hold out
 train_size = floor(0.7 * nrow(data))
 train_idx = sample(nrow(data), train_size)
@@ -359,7 +366,7 @@ Since, this will explode the number of predictors let's generate AIC and BIC mod
 AIC Interaction Model:
 
 ```{r, cache = cache}
-model.interaction.step.aic = step(model.interaction, trace = 0)
+model.interaction.step.aic = step(model.interaction, trace = FALSE)
 
 par(mfrow = c(2, 2))
 plot(model.interaction.step.aic)
@@ -669,13 +676,11 @@ show_metrics(model_trans)
 
 ## Results
 
-MODEL COMPARISON + BEST MODEL + TRAIN vs TEST STATS
+The best model stastified all LINE assumptions. To build the model we performed data analysis where we removed all records with `NA` values and outliers. We looked at correlation matrix between predictors and excluded highly correlated predictors. We started from simple additive model then we tried to search better model using backward search using both AIC and BIC evaluation criteria. Next we tried to apply 2 level interactions for every predictor and perform search again. We pick the best selected model and started manually explore different interactions and transformations. 
 
-
-## Discussion
-
-Ideas for furhter improvemnts
-
-## Appendix
-
-Put all not important stuff here
+```{r, cache = cache}
+best_model = model_selected_interactions_bic
+par(mfrow = c(2, 2))
+plot(best_model)
+show_metrics(best_model)
+```
